@@ -7,9 +7,8 @@ vendor
 dist/
 
 # Ignore specific files
-admin/**/*.min.js
-public/**/*.min.js
 build
 package-lock.json
-assets/js/chart.js
-assets/js/chartjs-plugin-zoom.js
+assets/js/*.js
+coverage-integration*
+coverage-unit*

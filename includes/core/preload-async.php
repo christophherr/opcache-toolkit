@@ -24,7 +24,6 @@ function opcache_toolkit_preload_now() {
 	$compiled = 0;
 	$total    = 0;
 
-	// Count PHP files
 	foreach ( $paths as $path ) {
 		if ( ! is_dir( $path ) ) {
 			continue;
@@ -35,9 +34,7 @@ function opcache_toolkit_preload_now() {
 				new RecursiveDirectoryIterator( $path, FilesystemIterator::SKIP_DOTS )
 			);
 		} catch ( UnexpectedValueException $e ) {
-			if ( function_exists( 'opcache_toolkit_log' ) ) {
-				opcache_toolkit_log( 'Preload error: ' . $e->getMessage() );
-			}
+			\OPcacheToolkit\Plugin::logger()->log( 'Preload error: ' . $e->getMessage(), 'error' );
 			continue;
 		}
 
@@ -48,7 +45,6 @@ function opcache_toolkit_preload_now() {
 		}
 	}
 
-	// Initialize progress
 	update_option(
 		'opcache_toolkit_preload_progress',
 		[
@@ -57,7 +53,6 @@ function opcache_toolkit_preload_now() {
 		]
 	);
 
-	// Compile files
 	foreach ( $paths as $path ) {
 		if ( ! is_dir( $path ) ) {
 			continue;
@@ -68,9 +63,7 @@ function opcache_toolkit_preload_now() {
 				new RecursiveDirectoryIterator( $path, FilesystemIterator::SKIP_DOTS )
 			);
 		} catch ( UnexpectedValueException $e ) {
-			if ( function_exists( 'opcache_toolkit_log' ) ) {
-				opcache_toolkit_log( 'Preload error: ' . $e->getMessage() );
-			}
+			\OPcacheToolkit\Plugin::logger()->log( 'Preload error: ' . $e->getMessage(), 'error' );
 			continue;
 		}
 
@@ -95,12 +88,10 @@ function opcache_toolkit_preload_now() {
 		}
 	}
 
-	// Finalize report (use unified helper)
 	if ( function_exists( 'opcache_toolkit_store_preload_report' ) ) {
 		opcache_toolkit_store_preload_report( $compiled );
 	}
 
-	// Mark progress complete
 	update_option(
 		'opcache_toolkit_preload_progress',
 		[
@@ -109,15 +100,15 @@ function opcache_toolkit_preload_now() {
 		]
 	);
 
-	if ( function_exists( 'opcache_toolkit_log' ) ) {
-		opcache_toolkit_log( "Preload completed. Files compiled: {$compiled}" );
-	}
+	\OPcacheToolkit\Plugin::logger()->log( "Preload completed. Files compiled: {$compiled}" );
 
 	return $compiled;
 }
 
 /**
  * Queue a background preload job using Action Scheduler.
+ *
+ * @return void
  */
 function opcache_toolkit_queue_preload() {
 	if ( ! class_exists( 'ActionScheduler' ) ) {

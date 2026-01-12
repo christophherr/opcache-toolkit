@@ -1,178 +1,300 @@
+# OPcache Toolkit
 
-# **OPcache Toolkit Dashboard**
-A modern, real‑time, WordPress‑native dashboard for monitoring and managing PHP OPcache.
+**The modern OPcache dashboard for WordPress**
 
----
-
-## **📊 Features Overview**
-
-### **1. Real‑Time OPcache Status**
-- Live polling of OPcache metrics
-- Hit rate, memory usage, wasted memory, cached scripts
-- Auto‑refresh with pause/resume
-- “Last updated” timestamp + live indicator
-- Lightweight REST API endpoints for fast updates
+Real-time visibility, visual analytics, and developer-grade automation for PHP OPcache — all in a safe, WordPress-native interface.
 
 ---
 
-## **📈 Performance Charts**
-- Chart.js‑powered visualizations
-- Hit rate over time
-- Memory usage and fragmentation
-- Cached scripts count
-- Wasted memory tracking
-- Zoom & pan support (Chart.js Zoom plugin)
-- Manual refresh button
-- Auto‑refresh toggle
+## 🚀 Features
 
----
+### Real-Time Monitoring
 
-## **📦 Preload Progress**
-- Real‑time preload status
-- Progress bar with smooth animation
-- Total scripts, completed scripts, and percentage
-- REST‑driven updates
+Watch OPcache metrics update live without refreshing the page:
 
----
+- **Live polling** via REST API with pause/resume control
+- **Hit rate, memory usage, fragmentation, cached scripts**
+- **Auto-refresh** with configurable intervals
+- **"Last updated"** timestamp with live indicator
+- **Lightweight endpoints** optimized for minimal overhead
 
-## **❤️ System Health Checks**
-- OPcache configuration validation
-- Memory thresholds
-- Restart recommendations
-- Color‑coded status indicators
-- Expandable/collapsible meta box
+### Visual Analytics
 
----
+Interactive Chart.js-powered visualizations:
 
-## **🧱 WordPress‑Native Meta Box Layout**
-- Uses WP’s built‑in `postbox` + `meta-box-sortables`
-- Drag‑and‑drop widget ordering
-- Collapsible sections
-- Per‑user persistence
-- No custom drag logic required
-- Fully compatible with WP Admin UI
+- **Hit rate over time** — understand cache effectiveness trends
+- **Memory usage & fragmentation** — spot memory pressure early
+- **Cached scripts count** — track bytecode cache growth
+- **Wasted memory tracking** — identify invalidation patterns
+- **Zoom & pan support** — explore historical data
+- **Manual refresh** — update charts on demand
 
----
+### Preload Insights
 
-## **🧭 Sidebar Navigation**
-- Custom left‑side navigation panel
-- Smooth scrolling to each meta box
-- Active‑section highlighting
-- Sticky sidebar (when layout allows)
-- Fully theme‑aware (uses plugin CSS variables)
+Real-time PHP 7.4+ preload progress visualization:
 
----
+- **Progress bar** with smooth animation
+- **Script counts** (total, completed, percentage)
+- **REST-driven updates** for live preload tracking
+- **Preload report** showing last compilation results
 
-## **🎨 Custom UI Theme**
-- Unified color palette
-- Card‑style components
-- Shadows, borders, spacing tuned for WP Admin
-- Responsive layout
-- Mobile‑friendly sidebar collapse behavior
+### System Health
 
----
+Proactive configuration checks and recommendations:
 
-## **🔌 REST API Endpoints**
-The plugin exposes several endpoints under:
+- **OPcache configuration validation**
+- **Memory threshold warnings**
+- **Restart recommendations**
+- **Color-coded status indicators** (✅ Good, ⚠️ Warning, ❌ Critical)
+- **Expandable/collapsible** health panel
 
-```
-/wp-json/opcache-toolkit/v1/
-```
+### WP-CLI Automation
 
-Including:
+Full command-line interface for developers and DevOps teams:
 
-- `/status` — live OPcache metrics
-- `/health` — system health checks
-- `/preload-progress` — preload status
-- `/chart-data` — historical chart data
+```shell script
+# Check OPcache status
+wp opcache-toolkit status
 
-All endpoints are nonce‑protected and optimized for low overhead.
+# Reset OPcache (careful!)
+wp opcache-toolkit reset
 
----
+# Preload OPcache asynchronously
+wp opcache-toolkit preload --async
 
-## **⚙️ Script Architecture**
-- `opcache-toolkit-live.js`
-  - Handles polling, live updates, preload, health, and status cards
+# Check system health
+wp opcache-toolkit health
 
-- `opcache-toolkit-charts.js`
-  - Chart.js initialization
-  - Zoom/pan
-  - Auto‑refresh logic
+# Export statistics as JSON
+wp opcache-toolkit stats export --json > stats.json
 
-  - Sidebar scroll‑spy
-  - Highlight bar
-  - Smooth scrolling
+# Get raw OPcache info
+wp opcache-toolkit info
 
----
+# Run warmup (compile uncached files only)
+wp opcache-toolkit warmup
 
-## **🧩 Templates**
-Modular template structure:
+# Show preload report
+wp opcache-toolkit preload report
 
-```
-includes/templates/
-    dashboard-cards.php
-    dashboard-charts.php
-    dashboard-health.php
-    dashboard-preload.php
-    dashboard-export-buttons.php
+# View configuration
+wp opcache-toolkit config
 ```
 
-Each template is self‑contained and easy to override.
+
+**All commands support `--json` flag** for automation, monitoring, and CI/CD pipelines.
+
+### WordPress-Native UI
+
+Built with WordPress's native meta box system:
+
+- **Drag-and-drop widget ordering**
+- **Collapsible sections** with per-user persistence
+- **Responsive layout** for mobile and tablet
+- **Sidebar navigation** with smooth scrolling
+- **Custom color palette** tuned for WP Admin
+- **Card-style components** with shadows and spacing
 
 ---
 
-## **🛠 CSS Architecture**
-- `opcache-toolkit-theme.css`
-  - Global variables
-  - Colors, spacing, typography
+## 📦 Installation
 
-- `opcache-toolkit-dashboard.css`
-  - Sidebar
-  - Cards
-  - Charts
-  - Preload bar
-  - Health list
-  - Layout overrides
+### From WordPress.org (recommended)
 
----
+1. Go to **Plugins → Add New** in your WordPress admin
+2. Search for **"OPcache Toolkit"**
+3. Click **Install Now**, then **Activate**
 
-## **🔒 Permissions**
-- Only users with OPcache management capability can access the dashboard
-- Capability is filterable for custom roles
+### Manual Installation
 
----
+1. Download the latest release
+2. Upload to `/wp-content/plugins/opcache-toolkit/`
+3. Activate via **Plugins** menu
 
-## **📦 Requirements**
-- PHP 7.4+
-- WordPress 6.0+
-- OPcache enabled
+### Requirements
+
+- **PHP 8.0**
+- **WordPress 6.9+**
+- **OPcache enabled** in PHP configuration
+- **`manage_options` capability** (Administrator by default)
 
 ---
 
-## **📘 License**
-GPL‑compatible (same as WordPress)
+## 🎯 Who Is This For?
+
+### WordPress Developers
+Get real-time visibility into how OPcache is performing on your development and staging environments.
+
+### Performance Engineers
+Monitor hit rates, memory pressure, and preload effectiveness with interactive charts and health checks.
+
+### Agencies
+Safely manage OPcache across multiple client sites without exposing dangerous reset operations in the UI.
+
+### DevOps Teams
+Automate OPcache management in CI/CD pipelines with the full WP-CLI suite.
+
+### Technical Site Owners
+Understand OPcache performance without needing to SSH into your server or run command-line tools.
+
+### Hosting Providers
+Provide a safe, per-site OPcache dashboard for shared hosting and multisite environments.
+
+---
+
+## 🆚 How Does It Compare?
+
+**OPcache Toolkit is the only WordPress plugin that combines:**
+
+- ✅ Real-time monitoring
+- ✅ Interactive charts
+- ✅ Preload progress visualization
+- ✅ System health checks
+- ✅ Full WP-CLI suite
+- ✅ Safe for shared hosting and multisite
+
+### vs Other OPcache Plugins
+
+**Reset buttons** (Flush OPcache, Clear OPcache)
+→ One button. No monitoring. No analytics.
+
+**Info panels** (WP OPcache, OPCache Scripts, Atec Cache Info)
+→ Basic OPcache info. No charts. No live data.
+
+**Object caching plugins** (Docket Cache)
+→ Not OPcache. Different layer entirely.
+
+**OPcache Manager**
+→ Powerful control features (invalidation, warmup, scheduling)
+→ But no real-time charts, preload progress, or modern dashboard UI
+
+**OPcache Toolkit focuses on visibility and safety.**
+**OPcache Manager focuses on control and invalidation.**
+
+Most developers will want insights first, control second — that's where OPcache Toolkit excels.
+
+---
+
+## 🔌 REST API Endpoints
+
+All endpoints are under `/wp-json/opcache-toolkit/v1/` and are **nonce-protected**.
+
+| Endpoint | Description |
+|---------|-------------|
+| `/status` | Live OPcache metrics (hit rate, memory, scripts) |
+| `/health` | System health checks and recommendations |
+| `/preload-progress` | Preload status (total, completed, percentage) |
+| `/chart-data` | Historical time-series data for charts |
+
+**Example**:
+```shell script
+curl -X GET "https://example.com/wp-json/opcache-toolkit/v1/status" \
+  -H "X-WP-Nonce: YOUR_NONCE"
+```
 
 
-## WP‑CLI Commands
+**Response**:
+```json
+{
+  "enabled": true,
+  "hit_rate": 98.5,
+  "memory_usage": 67.2,
+  "cached_scripts": 1247,
+  "wasted_memory": 2.3,
+  "last_restart_time": "2026-01-12 10:30:00"
+}
+```
 
-OPcache Toolkit includes a full WP‑CLI interface for managing, inspecting, and maintaining OPcache from the command line.
+
+---
+
+## ⚙️ Architecture
+
+### Script Structure
+
+**`opcache-toolkit-live.js`**
+Handles live polling, status cards, preload progress, and health panel updates.
+
+**`opcache-toolkit-charts.js`**
+Chart.js initialization, zoom/pan, auto-refresh logic, and chart data management.
+
+**Sidebar navigation**
+Scroll-spy, active section highlighting, smooth scrolling to meta boxes.
+
+### Template Structure
+
+Modular templates in `includes/templates/`:
+
+```
+dashboard-cards.php         — Status overview cards
+dashboard-charts.php        — Chart.js visualizations
+dashboard-health.php        — System health panel
+dashboard-preload.php       — Preload progress bar
+dashboard-export-buttons.php — Export utilities
+```
+
+
+Each template is self-contained and easy to override or extend.
+
+### CSS Architecture
+
+**`opcache-toolkit-theme.css`**
+Global CSS variables (colors, spacing, typography, shadows)
+
+**`opcache-toolkit-dashboard.css`**
+Dashboard-specific styles (sidebar, cards, charts, preload bar, health list, layout overrides)
+
+All styles are scoped to `.opcache-toolkit-*` classes to avoid conflicts.
+
+---
+
+## 🔒 Permissions
+
+- Dashboard access requires **`manage_options`** capability by default
+- Capability is **filterable** via `opcache_toolkit_capability` hook
+- REST API endpoints are **nonce-protected**
+- WP-CLI commands respect WordPress user context
+
+---
+
+## 📚 Documentation
+
+### Available Documentation
+
+- **[Testing Documentation](docs/testing.md)** — PHPUnit and Jest testing guidelines
+- **[ADR (Architecture Decision Records)](docs/adr/)** — Key architectural decisions
+- **[Marketing & Positioning](dev/marketing-positioning.md)** — How to market and position OPcache Toolkit
+- **[Roadmap](dev/ROADMAP.md)** — Future features and development plans
+
+### Getting Help
+
+- **GitHub Issues**: Report bugs or request features
+- **WordPress.org Support**: Community support forum
+
+---
+
+## 🛠 WP-CLI Commands
+
+OPcache Toolkit includes a full WP-CLI interface for managing, inspecting, and maintaining OPcache from the command line.
 
 All commands follow the format:
 
-`wp opcache-toolkit <command> [options]`
+```shell script
+wp opcache-toolkit <command> [options]
+```
 
 
 ### Available Commands
 
 | Command | Description |
-|--------|-------------|
+|---------|-------------|
 | `wp opcache-toolkit info` | Raw OPcache information from `opcache_get_status()` |
 | `wp opcache-toolkit status` | Summary of memory, strings, and statistics |
 | `wp opcache-toolkit health` | Health indicators (hit rate, memory usage, wasted memory) |
 | `wp opcache-toolkit reset` | Reset OPcache immediately |
 | `wp opcache-toolkit preload` | Preload OPcache (sync or async) |
 | `wp opcache-toolkit preload report` | Show last preload results |
-| `wp opcache-toolkit warmup` | Compile only uncached PHP files |
+| `wp opcache-toolkit warmup` | Compile only uncached files |
 | `wp opcache-toolkit stats clear` | Clear the OPcache statistics table |
 | `wp opcache-toolkit stats export` | Export stats as JSON |
 | `wp opcache-toolkit log` | Run the daily log job manually |
@@ -181,89 +303,69 @@ All commands follow the format:
 
 ### JSON Output
 
-All commands support a `--json` flag:
-`wp opcache-toolkit status --json`
+All commands support a `--json` flag for automation, monitoring, and scripting:
+
+```shell script
+wp opcache-toolkit status --json
+```
 
 
-This is ideal for automation, monitoring, and scripting.
+**Example JSON output**:
+```json
+{
+  "enabled": true,
+  "memory": {
+    "used": 67.2,
+    "free": 32.8,
+    "wasted": 2.3
+  },
+  "statistics": {
+    "hits": 123456,
+    "misses": 789,
+    "hit_rate": 99.36
+  }
+}
+```
+
 
 ### Examples
 
-Reset OPcache:
-`wp opcache-toolkit reset`
-
-Preload OPcache asynchronously:
-`wp opcache-toolkit preload --async`
-
-Export statistics:
-`wp opcache-toolkit stats export --json > stats.json`
-
-Check OPcache health:
-`wp opcache-toolkit health`
+**Reset OPcache**:
+```shell script
+wp opcache-toolkit reset
+```
 
 
-OPCACHE(1)                 User Commands                OPCACHE(1)
+**Preload OPcache asynchronously**:
+```shell script
+wp opcache-toolkit preload --async
+```
 
-NAME
-    opcache – WP‑CLI interface for OPcache Toolkit
 
-SYNOPSIS
-    wp opcache-toolkit <command> [options]
+**Export statistics**:
+```shell script
+wp opcache-toolkit stats export --json > stats.json
+```
 
-DESCRIPTION
-    OPcache Toolkit provides a complete WP‑CLI interface for inspecting,
-    resetting, preloading, warming, and maintaining OPcache.
 
-COMMANDS
-    info
-        Display raw OPcache information from opcache_get_status().
+**Check OPcache health**:
+```shell script
+wp opcache-toolkit health
+```
 
-    status
-        Show summarized OPcache status (memory, strings, statistics).
 
-    health
-        Display OPcache health indicators including hit rate and memory usage.
+**View configuration**:
+```shell script
+wp opcache-toolkit config
+```
 
-    reset
-        Reset OPcache immediately.
 
-    preload [--async]
-        Preload OPcache by compiling all PHP files in plugins and themes.
-        Use --async to queue the job via Action Scheduler.
+---
 
-    preload report
-        Show the last preload report (files compiled, timestamp).
+## 📘 License
 
-    warmup
-        Compile only uncached PHP files.
+GPL v3 or later
 
-    stats clear
-        Clear the OPcache statistics database table.
+---
 
-    stats export [--json]
-        Export OPcache statistics as JSON.
 
-    log
-        Run the daily OPcache logging job immediately.
-
-    cleanup
-        Run the OPcache retention cleanup job immediately.
-
-    config
-        Display OPcache ini configuration.
-
-OPTIONS
-    --json
-        Output machine‑readable JSON instead of human‑readable text.
-
-EXAMPLES
-    wp opcache-toolkit reset
-    wp opcache-toolkit preload --async
-    wp opcache-toolkit status --json
-    wp opcache-toolkit stats export --json > stats.json
-
-AUTHOR
-    OPcache Toolkit Plugin
-
-COPYRIGHT
-    This is free software; see the source for copying conditions.

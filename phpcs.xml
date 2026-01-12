@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="EasyliAmused" xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd">
 
-	<description>The custom ruleset for Honors WP Calendar for Learndash.</description>
+	<description>The custom ruleset for OPcache Toolkit.</description>
 
 	<!-- For help in understanding this file: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml -->
 	<!-- For help in using PHPCS: https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage -->
@@ -14,6 +14,7 @@
 	<exclude-pattern>/vendor/</exclude-pattern>
 	<exclude-pattern>/build/</exclude-pattern>
 	<exclude-pattern>/tests/</exclude-pattern>
+	<exclude-pattern>/assets/js/</exclude-pattern>
 
 	<!-- How to scan -->
 	<!-- Show sniff and progress -->
@@ -37,6 +38,7 @@
 	<!-- For help in understanding this custom sniff properties:
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties -->
 	<rule ref="WordPress">
+		<exclude name="WordPress.DB.PreparedSQL.NotPrepared"/>
 		<!-- <exclude name="PEAR.NamingConventions.ValidClassName.StartWithCapital"/> -->
 		<!-- Remove after phpcbf is completed. -->
 		<!-- <exclude name="WordPress.PHP.StrictComparisons"/> -->
@@ -46,7 +48,7 @@
 
 	<!-- For help in understanding this custom sniff properties:
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties-->
-	<config name="minimum_supported_wp_version" value="6.6"/>
+	<config name="minimum_supported_wp_version" value="6.9"/>
 
 	<!-- <rule ref="WordPress.Files.FileName">
 		<properties>
@@ -55,13 +57,16 @@
 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
 	</rule> -->
 
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<exclude-pattern>*/CLI/Commands.php</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-							<element value="ea-events-calendar"/>
-				<element value="EA_Events_Calendar"/>
-				<element value="ea_events_calendar"/>
-				<element value="EA_Events_Calendar"/>
+				<element value="opcache-toolkit"/>
+				<element value="OPcacheToolkit"/>
+				<element value="opcache_toolkit"/>
 			</property>
 		</properties>
 		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.InvalidPrefixPassed"/>
@@ -72,12 +77,13 @@
 			<property name="strict_class_file_names" value="false"/>
 		</properties>
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
-				<element value="ea-events-calendar"/>
+				<element value="opcache-toolkit"/>
 			</property>
 		</properties>
 	</rule>

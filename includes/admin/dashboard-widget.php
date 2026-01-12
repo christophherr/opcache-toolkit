@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function opcache_toolkit_register_dashboard_widget() {
 
-	// Multisite: only show on main site
+	// Multisite: only show on main site.
 	if ( OPCACHE_TOOLKIT_IS_NETWORK && ! is_main_site() ) {
 		return;
 	}
@@ -30,15 +30,13 @@ function opcache_toolkit_register_dashboard_widget() {
 		'opcache_toolkit_widget_render'
 	);
 
-	// Enqueue widget assets
 	add_action(
 		'admin_enqueue_scripts',
 		function ( $hook ) {
-			if ( $hook !== 'index.php' ) {
+			if ( 'index.php' !== $hook ) {
 				return;
 			}
 
-			// Shared theme variables
 			wp_enqueue_style(
 				'opcache-toolkit-theme',
 				plugins_url( 'assets/css/opcache-toolkit-theme.css', OPCACHE_TOOLKIT_FILE ),
@@ -46,7 +44,6 @@ function opcache_toolkit_register_dashboard_widget() {
 				filemtime( OPCACHE_TOOLKIT_PATH . 'assets/css/opcache-toolkit-theme.css' )
 			);
 
-			// Widget-specific CSS
 			wp_enqueue_style(
 				'opcache-toolkit-wpadmin-dashboard',
 				plugins_url( 'assets/css/opcache-toolkit-wpadmin-dashboard.css', OPCACHE_TOOLKIT_FILE ),
@@ -54,12 +51,18 @@ function opcache_toolkit_register_dashboard_widget() {
 				filemtime( OPCACHE_TOOLKIT_PATH . 'assets/css/opcache-toolkit-wpadmin-dashboard.css' )
 			);
 
-			// Widget JS
+			$script_path = 'assets/js/widget.js';
+			$asset_file  = OPCACHE_TOOLKIT_PATH . 'assets/js/widget.asset.php';
+			$asset       = file_exists( $asset_file ) ? include $asset_file : [
+				'dependencies' => [],
+				'version'      => OPCACHE_TOOLKIT_VERSION,
+			];
+
 			wp_enqueue_script(
 				'opcache-toolkit-wpadmin-dashboard',
-				plugins_url( 'assets/js/opcache-toolkit-wpadmin-dashboard.js', OPCACHE_TOOLKIT_FILE ),
-				[],
-				filemtime( OPCACHE_TOOLKIT_PATH . 'assets/js/opcache-toolkit-wpadmin-dashboard.js' ),
+				plugins_url( $script_path, OPCACHE_TOOLKIT_FILE ),
+				$asset['dependencies'],
+				$asset['version'],
 				true
 			);
 

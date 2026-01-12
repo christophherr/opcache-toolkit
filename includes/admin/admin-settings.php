@@ -9,13 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
--------------------------------------------------------------------------
- * 1. REGISTER SETTINGS PAGE (NETWORK OR SINGLE SITE)
- * ------------------------------------------------------------------------- */
 
 if ( OPCACHE_TOOLKIT_IS_NETWORK ) {
-
 	add_action(
 		'network_admin_menu',
 		function () {
@@ -28,9 +23,7 @@ if ( OPCACHE_TOOLKIT_IS_NETWORK ) {
 			);
 		}
 	);
-
 } else {
-
 	add_action(
 		'admin_menu',
 		function () {
@@ -43,18 +36,11 @@ if ( OPCACHE_TOOLKIT_IS_NETWORK ) {
 			);
 		}
 	);
-
 }
-
-/*
--------------------------------------------------------------------------
- * 2. REGISTER SETTINGS
- * ------------------------------------------------------------------------- */
 
 add_action(
 	'admin_init',
 	function () {
-
 		register_setting(
 			'opcache_toolkit_settings',
 			'opcache_toolkit_alert_threshold',
@@ -97,22 +83,25 @@ add_action(
 	}
 );
 
-/*
--------------------------------------------------------------------------
- * 3. MULTISITE‑AWARE OPTION GETTER
- * ------------------------------------------------------------------------- */
-
-function opcache_toolkit_get_setting( $key, $default = null ) {
+/**
+ * Get Setting
+ *
+ * @param string $key     Option name.
+ * @param mixed  $default_value Default value.
+ *
+ * @return mixed
+ */
+function opcache_toolkit_get_setting( $key, $default_value = null ) {
 	return OPCACHE_TOOLKIT_IS_NETWORK
-		? get_site_option( $key, $default )
-		: get_option( $key, $default );
+		? get_site_option( $key, $default_value )
+		: get_option( $key, $default_value );
 }
 
-/*
--------------------------------------------------------------------------
- * 4. RENDER SETTINGS PAGE (TABBED UI)
- * ------------------------------------------------------------------------- */
-
+/**
+ * Render settings page
+ *
+ * @return void
+ */
 function opcache_toolkit_render_settings_page() {
 
 	$cap = OPCACHE_TOOLKIT_IS_NETWORK ? 'manage_network' : 'manage_options';
@@ -120,13 +109,30 @@ function opcache_toolkit_render_settings_page() {
 		wp_die( esc_html__( 'Access denied.', 'opcache-toolkit' ) );
 	}
 
-	// Load settings
+	// Load settings.
 	$threshold  = opcache_toolkit_get_setting( 'opcache_toolkit_alert_threshold', 90 );
 	$email      = opcache_toolkit_get_setting( 'opcache_toolkit_alert_email', get_option( 'admin_email' ) );
 	$auto_reset = opcache_toolkit_get_setting( 'opcache_toolkit_auto_reset', false );
 	$retention  = opcache_toolkit_get_setting( 'opcache_toolkit_retention_days', 90 );
 
-	// Preload report
+	// Handle saving network settings.
+	if ( OPCACHE_TOOLKIT_IS_NETWORK && isset( $_POST['opcache_toolkit_save_network_settings'] ) ) {
+		check_admin_referer( 'opcache_toolkit_network_settings' );
+
+		$threshold  = isset( $_POST['opcache_toolkit_alert_threshold'] ) ? (float) $_POST['opcache_toolkit_alert_threshold'] : 90;
+		$email      = isset( $_POST['opcache_toolkit_alert_email'] ) ? sanitize_email( wp_unslash( $_POST['opcache_toolkit_alert_email'] ) ) : get_option( 'admin_email' );
+		$auto_reset = isset( $_POST['opcache_toolkit_auto_reset'] ) ? 1 : 0;
+		$retention  = isset( $_POST['opcache_toolkit_retention_days'] ) ? (int) $_POST['opcache_toolkit_retention_days'] : 90;
+
+		update_site_option( 'opcache_toolkit_alert_threshold', $threshold );
+		update_site_option( 'opcache_toolkit_alert_email', $email );
+		update_site_option( 'opcache_toolkit_auto_reset', $auto_reset );
+		update_site_option( 'opcache_toolkit_retention_days', $retention );
+
+		echo '<div class="updated"><p>' . esc_html__( 'Network settings saved.', 'opcache-toolkit' ) . '</p></div>';
+	}
+
+	// Preload report.
 	$report = opcache_toolkit_get_preload_report();
 
 	wp_enqueue_style(
@@ -143,11 +149,19 @@ function opcache_toolkit_render_settings_page() {
 		filemtime( OPCACHE_TOOLKIT_PATH . 'assets/css/opcache-toolkit-settings.css' )
 	);
 
+	// Settings JS using modular build.
+	$script_path = 'assets/js/settings.js';
+	$asset_file  = OPCACHE_TOOLKIT_PATH . 'assets/js/settings.asset.php';
+	$asset       = file_exists( $asset_file ) ? include $asset_file : [
+		'dependencies' => [],
+		'version'      => OPCACHE_TOOLKIT_VERSION,
+	];
+
 	wp_enqueue_script(
 		'opcache-toolkit-settings',
-		plugins_url( 'assets/js/opcache-toolkit-settings.js', OPCACHE_TOOLKIT_FILE ),
-		[],
-		filemtime( OPCACHE_TOOLKIT_PATH . 'assets/js/opcache-toolkit-settings.js' ),
+		plugins_url( $script_path, OPCACHE_TOOLKIT_FILE ),
+		$asset['dependencies'],
+		$asset['version'],
 		true
 	);
 	?>
@@ -164,8 +178,14 @@ function opcache_toolkit_render_settings_page() {
 
 		<!-- GENERAL TAB -->
 		<section id="opcache-toolkit-tab-general" class="opcache-toolkit-tab active">
-			<form method="post" action="options.php">
-				<?php settings_fields( 'opcache_toolkit_settings' ); ?>
+			<?php if ( OPCACHE_TOOLKIT_IS_NETWORK ) : ?>
+				<form method="post" action="">
+					<?php wp_nonce_field( 'opcache_toolkit_network_settings' ); ?>
+					<input type="hidden" name="opcache_toolkit_save_network_settings" value="1">
+			<?php else : ?>
+				<form method="post" action="options.php">
+					<?php settings_fields( 'opcache_toolkit_settings' ); ?>
+			<?php endif; ?>
 
 				<h2><?php esc_html_e( 'Email Alerts', 'opcache-toolkit' ); ?></h2>
 
@@ -286,13 +306,13 @@ function opcache_toolkit_render_settings_page() {
 			<h3><?php esc_html_e( 'Debug Information', 'opcache-toolkit' ); ?></h3>
 			<?php
 			if ( function_exists( 'opcache_get_configuration' ) ) {
-				// Debug output is intentionally unescaped inside <pre>
+				// Debug output is intentionally unescaped inside <pre>.
 				?>
-				<pre class="opcache-toolkit-debug"> 
+				<pre class="opcache-toolkit-debug">
 				<?php
-				print_r( opcache_get_configuration() );
+				print_r( opcache_get_configuration() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- intentional
 				?>
-				</pre> 
+				</pre>
 				<?php
 			} else {
 				esc_html_e( 'OPcache configuration is not available on this server.', 'opcache-toolkit' );

@@ -1,12 +1,22 @@
 .github export-ignore
 node_modules export-ignore
+src export-ignore
 .editorconfig export-ignore
+.eslintignore export-ignore
+.eslintrc.json export-ignore
 .gitattributes export-ignore
 .gitignore export-ignore
+.prettierignore export-ignore
+.prettierrc export-ignore
+babel.config.js
 composer.json export-ignore
 composer.lock export-ignore
+jest.config.js
 package.json export-ignore
 package-lock.json export-ignore
 phpcs.xml export-ignore
-zip.sh export-ignore
+phpunit.integration.xml
+phpunit.unit.xml
+webpack.config.js
+
 

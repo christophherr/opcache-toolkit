@@ -22,22 +22,5 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return void
  */
 function opcache_toolkit_log( $message ) {
-
-	// Only log when WP_DEBUG is enabled
-	if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
-		return;
-	}
-
-	// Ensure message is a string
-	$message = (string) $message;
-
-	// Log file location
-	$file = WP_CONTENT_DIR . '/opcache-manager-debug.log';
-
-	// Timestamped entry
-	$timestamp = date( 'Y-m-d H:i:s' );
-	$entry     = "[$timestamp] $message\n";
-
-	// Write to log
-	error_log( $entry, 3, $file );
+	\OPcacheToolkit\Plugin::logger()->log( (string) $message, 'debug' );
 }

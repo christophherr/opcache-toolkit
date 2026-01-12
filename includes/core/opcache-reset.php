@@ -17,11 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
--------------------------------------------------------------------------
- * MANUAL RESET (admin-post.php?action=opcache_toolkit_clear)
- * ------------------------------------------------------------------------- */
-
 /**
  * Handle the "Reset OPcache Now" admin-post action.
  *
@@ -52,21 +47,14 @@ add_action(
 		if ( function_exists( 'opcache_reset' ) ) {
 			opcache_reset();
 
-			if ( function_exists( 'opcache_toolkit_log' ) ) {
-				opcache_toolkit_log( 'OPcache manually reset via admin-post action.' );
-			}
+			\OPcacheToolkit\Plugin::logger()->log( 'OPcache manually reset via admin-post action.' );
 		}
 
-		wp_redirect( wp_get_referer() );
+		wp_safe_redirect( wp_get_referer() );
 		exit;
 	}
 );
 
-
-/*
--------------------------------------------------------------------------
- * AUTO RESET AFTER PLUGIN/THEME UPDATES
- * ------------------------------------------------------------------------- */
 
 /**
  * Automatically reset OPcache after plugin or theme updates.
@@ -95,7 +83,6 @@ add_action(
 			return;
 		}
 
-		// Fetch auto-reset setting (network or single-site)
 		$auto_reset = OPCACHE_TOOLKIT_IS_NETWORK
 		? get_site_option( 'opcache_toolkit_auto_reset', 0 )
 		: get_option( 'opcache_toolkit_auto_reset', 0 );
@@ -104,7 +91,6 @@ add_action(
 			return;
 		}
 
-		// Only reset for plugin or theme updates
 		if ( ! isset( $hook_extra['type'] ) ) {
 			return;
 		}
@@ -116,9 +102,7 @@ add_action(
 		if ( function_exists( 'opcache_reset' ) ) {
 			opcache_reset();
 
-			if ( function_exists( 'opcache_toolkit_log' ) ) {
-				opcache_toolkit_log( 'OPcache auto-reset after ' . $hook_extra['type'] . ' update.' );
-			}
+			\OPcacheToolkit\Plugin::logger()->log( 'OPcache auto-reset after ' . $hook_extra['type'] . ' update.' );
 		}
 	},
 	10,

@@ -15,11 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
--------------------------------------------------------------------------
- * TABLE NAME HELPERS
- * ------------------------------------------------------------------------- */
-
 /**
  * Get the full table name for OPcache stats.
  *
@@ -30,10 +25,18 @@ function opcache_toolkit_get_stats_table_name() {
 	return $wpdb->prefix . 'opcache_toolkit_stats';
 }
 
-/*
--------------------------------------------------------------------------
- * SCHEMA CREATION & UPGRADES (dbDelta)
- * ------------------------------------------------------------------------- */
+/**
+ * Check if the statistics table exists.
+ *
+ * @return bool
+ */
+function opcache_toolkit_check_schema() {
+	global $wpdb;
+	$table = opcache_toolkit_get_stats_table_name();
+
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+	return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
+}
 
 /**
  * Create or upgrade the OPcache stats table using dbDelta.
@@ -67,11 +70,6 @@ function opcache_toolkit_install_schema() {
 	dbDelta( $sql );
 }
 
-/*
--------------------------------------------------------------------------
- * RETENTION CLEANUP
- * ------------------------------------------------------------------------- */
-
 /**
  * Delete stats older than the configured retention period.
  *
@@ -89,16 +87,7 @@ function opcache_toolkit_cleanup_stats_retention() {
 		$days = 1;
 	}
 
-	global $wpdb;
-	$table = opcache_toolkit_get_stats_table_name();
-
-	// Delete records older than NOW() - INTERVAL X DAY
-	$wpdb->query(
-		$wpdb->prepare(
-			"DELETE FROM {$table} WHERE recorded_at < (NOW() - INTERVAL %d DAY)",
-			$days
-		)
-	);
+	\OPcacheToolkit\Plugin::stats()->delete_older_than( $days );
 }
 
 /**
@@ -115,11 +104,6 @@ function opcache_toolkit_schedule_retention_cleanup() {
 }
 add_action( 'opcache_toolkit_daily_stats_cleanup', 'opcache_toolkit_cleanup_stats_retention' );
 
-/*
--------------------------------------------------------------------------
- * STATS HELPERS
- * ------------------------------------------------------------------------- */
-
 /**
  * Insert a single stats row into the table.
  *
@@ -130,18 +114,13 @@ add_action( 'opcache_toolkit_daily_stats_cleanup', 'opcache_toolkit_cleanup_stat
  * @return void
  */
 function opcache_toolkit_insert_stats_row( $recorded_at, $hit_rate, $cached, $wasted ) {
-	global $wpdb;
-	$table = opcache_toolkit_get_stats_table_name();
-
-	$wpdb->insert(
-		$table,
+	\OPcacheToolkit\Plugin::stats()->insert(
 		[
 			'recorded_at'    => $recorded_at,
 			'hit_rate'       => (float) $hit_rate,
 			'cached_scripts' => (int) $cached,
 			'wasted_memory'  => (int) $wasted,
-		],
-		[ '%s', '%f', '%d', '%d' ]
+		]
 	);
 }
 
@@ -151,9 +130,7 @@ function opcache_toolkit_insert_stats_row( $recorded_at, $hit_rate, $cached, $wa
  * @return void
  */
 function opcache_toolkit_clear_stats_table() {
-	global $wpdb;
-	$table = opcache_toolkit_get_stats_table_name();
-	$wpdb->query( "TRUNCATE TABLE {$table}" );
+	\OPcacheToolkit\Plugin::stats()->truncate();
 }
 
 /**
@@ -162,19 +139,8 @@ function opcache_toolkit_clear_stats_table() {
  * @return array[] Array of associative rows.
  */
 function opcache_toolkit_get_all_stats_rows() {
-	global $wpdb;
-	$table = opcache_toolkit_get_stats_table_name();
-
-	return $wpdb->get_results(
-		"SELECT * FROM {$table} ORDER BY recorded_at ASC",
-		ARRAY_A
-	);
+	return \OPcacheToolkit\Plugin::stats()->get_all();
 }
-
-/*
--------------------------------------------------------------------------
- * PRELOAD REPORT HELPERS
- * ------------------------------------------------------------------------- */
 
 /**
  * Store preload report values.
@@ -225,11 +191,6 @@ function opcache_toolkit_get_preload_report() {
 	];
 }
 
-/*
--------------------------------------------------------------------------
- * MAINTENANCE ACTIONS: CLEAR & EXPORT STATS
- * ------------------------------------------------------------------------- */
-
 /**
  * Handle "Clear OPcache Statistics" admin-post action.
  *
@@ -238,8 +199,8 @@ function opcache_toolkit_get_preload_report() {
 add_action(
 	'admin_post_opcache_toolkit_clear_stats',
 	function () {
-
-		if ( ! current_user_can( 'manage_options' ) ) {
+		$cap = ( defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) && OPCACHE_TOOLKIT_IS_NETWORK ) ? 'manage_network' : 'manage_options';
+		if ( ! current_user_can( $cap ) ) {
 			wp_die( esc_html__( 'Access denied.', 'opcache-toolkit' ) );
 		}
 
@@ -247,7 +208,7 @@ add_action(
 
 		opcache_toolkit_clear_stats_table();
 
-		wp_redirect( wp_get_referer() );
+		wp_safe_redirect( wp_get_referer() );
 		exit;
 	}
 );
@@ -262,8 +223,11 @@ add_action(
 add_action(
 	'admin_post_opcache_toolkit_export_stats',
 	function () {
+		$cap = ( defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) && OPCACHE_TOOLKIT_IS_NETWORK )
+			? 'manage_network'
+			: 'manage_options';
 
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( $cap ) ) {
 			wp_die( esc_html__( 'Access denied.', 'opcache-toolkit' ) );
 		}
 
@@ -271,6 +235,7 @@ add_action(
 
 		global $wp_filesystem;
 
+		// Ensure WP_Filesystem is initialized.
 		if ( empty( $wp_filesystem ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 			WP_Filesystem();
@@ -282,38 +247,53 @@ add_action(
 
 		$rows = opcache_toolkit_get_all_stats_rows();
 
-		// Create temp file
+		if ( empty( $rows ) ) {
+			wp_die( esc_html__( 'No data available for export.', 'opcache-toolkit' ) );
+		}
+
+		// Generate CSV in memory.
+		$handle = fopen( 'php://temp', 'r+' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+		if ( false === $handle ) {
+			wp_die( esc_html__( 'Unable to create temporary memory stream.', 'opcache-toolkit' ) );
+		}
+
+		// Header row.
+		fputcsv( $handle, array_keys( $rows[0] ), ',', '"', '\\' );
+
+		// Data rows.
+		foreach ( $rows as $row ) {
+			fputcsv( $handle, $row, ',', '"', '\\' );
+		}
+
+		rewind( $handle );
+		$csv_output = stream_get_contents( $handle );
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
+		if ( false === $csv_output ) {
+			wp_die( esc_html__( 'Unable to generate CSV content.', 'opcache-toolkit' ) );
+		}
+
+		// Create temp file and write CSV via WP_Filesystem.
 		$tmp = wp_tempnam( 'opcache_stats.csv' );
 		if ( ! $tmp ) {
 			wp_die( esc_html__( 'Unable to create temporary file.', 'opcache-toolkit' ) );
 		}
 
-		// Generate CSV content
-		$handle = fopen( 'php://temp', 'r+' );
+		$chmod = defined( 'FS_CHMOD_FILE' ) ? FS_CHMOD_FILE : 0644;
 
-		if ( ! empty( $rows ) ) {
-			fputcsv( $handle, array_keys( $rows[0] ) );
-			foreach ( $rows as $row ) {
-				fputcsv( $handle, $row );
-			}
+		if ( ! $wp_filesystem->put_contents( $tmp, $csv_output, $chmod ) ) {
+			wp_die( esc_html__( 'Unable to write CSV via Filesystem API.', 'opcache-toolkit' ) );
 		}
 
-		rewind( $handle );
-		$csv = stream_get_contents( $handle );
-		fclose( $handle );
-
-		// Write CSV using WP_Filesystem
-		$wp_filesystem->put_contents( $tmp, $csv, FS_CHMOD_FILE );
-
-		// Send file to browser
+		// Send file to browser.
 		header( 'Content-Type: text/csv' );
 		header( 'Content-Disposition: attachment; filename="opcache_stats.csv"' );
-		header( 'Content-Length: ' . filesize( $tmp ) );
+		header( 'Content-Length: ' . $wp_filesystem->size( $tmp ) );
 
-		readfile( $tmp );
+		echo $wp_filesystem->get_contents( $tmp ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		// Cleanup
-		unlink( $tmp );
+		// Cleanup.
+		$wp_filesystem->delete( $tmp );
 		exit;
 	}
 );

@@ -2,7 +2,7 @@
 	"name": "opcache-toolkit",
 	"version": "1.0.0",
 	"author": "Christoph Herr",
-	"description": "Events Calendar for LearnDash WordPress plugin",
+	"description": "OPcache Toolkit is the modern, real-time OPcache dashboard for WordPress — built for developers, safe for shared hosting, and powered by a full WP-CLI suite for automation.",
 	"homepage": "https://www.christophherr.com",
 	"repository": {
 		"type": "git",
@@ -11,8 +11,10 @@
 	"private": true,
 	"license": "GPL-3.0-or-later",
 	"scripts": {
-		"build": "wp-scripts build",
-		"start": "wp-scripts start",
+		"build": "wp-scripts build --webpack-src-dir=src/js --output-path=assets/js",
+		"build:dev": "wp-scripts build --mode=development --webpack-src-dir=src/js --output-path=assets/js",
+		"start": "wp-scripts start --webpack-src-dir=src/js --output-path=assets/js",
+		"watch": "wp-scripts start --webpack-src-dir=src/js --output-path=assets/js",
 		"lint:js": "wp-scripts lint-js",
 		"lint": "eslint . --ext .js,.jsx",
 		"lint:js:fix": "eslint . --ext .js,.jsx --fix",
@@ -22,6 +24,13 @@
 		"test:coverage": "jest --coverage"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^31.0.0"
+		"@babel/core": "^7.22.0",
+		"@babel/preset-env": "^7.22.0",
+		"@wordpress/scripts": "^31.0.0",
+		"babel-jest": "^29.0.0"
+	},
+	"dependencies": {
+		"chart.js": "^4.5.1",
+		"chartjs-plugin-zoom": "^2.2.0"
 	}
 }

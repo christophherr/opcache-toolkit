@@ -18,7 +18,7 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Prevent direct access
+	exit; // Prevent direct access.
 }
 
 /**
@@ -45,24 +45,15 @@ add_action(
 );
 
 /**
- * Include plugin modules.
+ * Include Autoloader and Bootstrap Plugin.
  */
-require_once OPCACHE_TOOLKIT_PATH . 'includes/core/db.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/system/rest.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/debug/debug.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/admin/admin-menu.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/admin/admin-settings.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/admin/admin-dashboard.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/admin/admin-bar.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/admin/dashboard-widget.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/core/cron.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/system/alerts.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/core/preload.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/core/preload-async.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/core/opcache-reset.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/system/notices.php';
-require_once OPCACHE_TOOLKIT_PATH . 'includes/system/wp-cli.php';
+require_once OPCACHE_TOOLKIT_PATH . 'vendor/autoload.php';
+\OPcacheToolkit\Plugin::instance()->boot();
 
+/**
+ * Initialize Error Monitor for automatic PHP error capture.
+ */
+\OPcacheToolkit\Services\ErrorMonitor::init();
 
 register_activation_hook(
 	__FILE__,
@@ -73,8 +64,25 @@ register_activation_hook(
 		// Schedule daily OPcache log.
 		opcache_toolkit_schedule_daily_event();
 
-		// Schedule retention cleanup
+		// Schedule retention cleanup.
 		opcache_toolkit_schedule_retention_cleanup();
+
+		// Mark for redirect to wizard.
+		add_option( 'opcache_toolkit_show_wizard', true );
+	}
+);
+
+add_action(
+	'admin_init',
+	function () {
+		if ( get_option( 'opcache_toolkit_show_wizard' ) ) {
+			delete_option( 'opcache_toolkit_show_wizard' );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for redirection.
+			if ( ! isset( $_GET['activate-multi'] ) && opcache_toolkit_user_can_manage_opcache() ) {
+				wp_safe_redirect( admin_url( 'admin.php?page=opcache-toolkit-wizard' ) );
+				exit;
+			}
+		}
 	}
 );
 
@@ -82,13 +90,13 @@ register_deactivation_hook(
 	__FILE__,
 	function () {
 
-		// Clear Action Scheduler jobs
+		// Clear Action Scheduler jobs.
 		if ( class_exists( 'ActionScheduler' ) ) {
 			as_unschedule_all_actions( 'opcache_toolkit_daily_log', [], 'opcache-toolkit' );
 			as_unschedule_all_actions( 'opcache_toolkit_daily_stats_cleanup', [], 'opcache-toolkit' );
 		}
 
-		// Clear WP-Cron jobs
+		// Clear WP-Cron jobs.
 		wp_clear_scheduled_hook( 'opcache_toolkit_daily_log' );
 		wp_clear_scheduled_hook( 'opcache_toolkit_daily_stats_cleanup' );
 	}

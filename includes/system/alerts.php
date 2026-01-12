@@ -24,32 +24,26 @@ add_action(
 	'opcache_toolkit_check_alerts',
 	function ( $hit_rate ) {
 
-		// Fetch threshold
 		$threshold = (float) opcache_toolkit_get_setting( 'opcache_toolkit_alert_threshold', 90 );
 
-		// Fetch email
-		$email = opcache_toolkit_get_setting( 'opcache_toolkit_alert_email', get_option( 'admin_email' ) );
-
-		// Allow customization
+		$email   = opcache_toolkit_get_setting( 'opcache_toolkit_alert_email', get_option( 'admin_email' ) );
 		$email   = apply_filters( 'opcache_toolkit_alert_email', $email );
 		$subject = apply_filters( 'opcache_toolkit_alert_subject', esc_html__( 'OPcache Hit Rate Alert', 'opcache-toolkit' ) );
 
 		$body = apply_filters(
 			'opcache_toolkit_alert_body',
 			sprintf(
-				esc_html__( "Your OPcache hit rate has dropped to %.2f%%.\n\nThis may indicate memory pressure, plugin bloat, or excessive file changes.", 'opcache-toolkit' ),
-				$hit_rate
+				// translators: Float representing the hit rate percentage.
+				esc_html__( "Your OPcache hit rate has dropped to %s%%.\n\nThis may indicate memory pressure, plugin bloat, or excessive file changes.", 'opcache-toolkit' ),
+				number_format_i18n( $hit_rate, 2 )
 			)
 		);
 
-		// Only send alert if hit rate is below threshold
 		if ( $hit_rate < $threshold ) {
 
 			wp_mail( $email, $subject, $body );
 
-			if ( function_exists( 'opcache_toolkit_log' ) ) {
-				opcache_toolkit_log( "Alert sent: hit rate {$hit_rate}% < threshold {$threshold}% to {$email}" );
-			}
+			\OPcacheToolkit\Plugin::logger()->log( "Alert sent: hit rate {$hit_rate}% < threshold {$threshold}% to {$email}", 'warning' );
 		}
 	}
 );

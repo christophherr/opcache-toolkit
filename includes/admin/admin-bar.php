@@ -9,10 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
--------------------------------------------------------------------------
- * CLEAR OPCACHE BUTTON
- * ------------------------------------------------------------------------- */
 
 add_action(
 	'admin_bar_menu',
@@ -34,7 +30,7 @@ add_action(
 			]
 		);
 
-		// Optional: Add preload button
+		// Optional: Add preload button.
 		$admin_bar->add_menu(
 			[
 				'id'    => 'opcache-toolkit-preload',
@@ -50,11 +46,6 @@ add_action(
 	100
 );
 
-/*
--------------------------------------------------------------------------
- * HANDLE CLEAR OPCACHE
- * ------------------------------------------------------------------------- */
-
 add_action(
 	'admin_post_opcache_toolkit_clear',
 	function () {
@@ -69,15 +60,10 @@ add_action(
 			opcache_reset();
 		}
 
-		wp_redirect( wp_get_referer() );
+		wp_safe_redirect( wp_get_referer() );
 		exit;
 	}
 );
-
-/*
--------------------------------------------------------------------------
- * HANDLE PRELOAD NOW
- * ------------------------------------------------------------------------- */
 
 add_action(
 	'admin_post_opcache_toolkit_preload_now',
@@ -91,7 +77,7 @@ add_action(
 
 		opcache_toolkit_preload_now();
 
-		wp_redirect( wp_get_referer() );
+		wp_safe_redirect( wp_get_referer() );
 		exit;
 	}
 );

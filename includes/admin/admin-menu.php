@@ -24,7 +24,7 @@ function opcache_toolkit_register_admin_menu() {
 	$cap         = is_multisite() ? 'manage_network' : 'manage_options';
 	$parent_slug = 'opcache-toolkit';
 
-	// Top-level menu
+	// Top-level menu.
 	add_menu_page(
 		esc_html__( 'OPcache Toolkit', 'opcache-toolkit' ),
 		esc_html__( 'OPcache Toolkit', 'opcache-toolkit' ),
@@ -35,7 +35,7 @@ function opcache_toolkit_register_admin_menu() {
 		65
 	);
 
-	// Dashboard subpage (same callback as top-level)
+	// Dashboard subpage (same callback as top-level).
 	add_submenu_page(
 		$parent_slug,
 		esc_html__( 'Dashboard', 'opcache-toolkit' ),
@@ -45,7 +45,7 @@ function opcache_toolkit_register_admin_menu() {
 		'opcache_toolkit_render_dashboard_page'
 	);
 
-	// Settings subpage
+	// Settings subpage.
 	add_submenu_page(
 		$parent_slug,
 		esc_html__( 'Settings', 'opcache-toolkit' ),
@@ -53,6 +53,26 @@ function opcache_toolkit_register_admin_menu() {
 		$cap,
 		'opcache-toolkit-settings',
 		'opcache_toolkit_render_settings_page'
+	);
+
+	// System Report subpage.
+	add_submenu_page(
+		$parent_slug,
+		esc_html__( 'System Report', 'opcache-toolkit' ),
+		esc_html__( 'System Report', 'opcache-toolkit' ),
+		$cap,
+		'opcache-toolkit-report',
+		'opcache_toolkit_render_system_report'
+	);
+
+	// Setup Wizard (Hidden from menu).
+	add_submenu_page(
+		null, // Hidden.
+		esc_html__( 'Setup Wizard', 'opcache-toolkit' ),
+		esc_html__( 'Setup Wizard', 'opcache-toolkit' ),
+		$cap,
+		'opcache-toolkit-wizard',
+		'opcache_toolkit_render_wizard_page'
 	);
 }
 

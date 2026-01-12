@@ -25,11 +25,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function opcache_toolkit_render_admin_notices() {
 
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice display.
 	if ( ! isset( $_GET['opcache_toolkit_notice'] ) ) {
 		return;
 	}
 
-	$type = sanitize_text_field( $_GET['opcache_toolkit_notice'] );
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice display.
+	$type = sanitize_text_field( wp_unslash( $_GET['opcache_toolkit_notice'] ) );
 
 	/**
 	 * Notice definitions
@@ -39,13 +41,13 @@ function opcache_toolkit_render_admin_notices() {
 	 */
 	$messages = [
 
-		// OPcache actions
+		// OPcache actions.
 		'opcache_cleared' => [
 			'success',
 			esc_html__( 'OPcache cleared successfully.', 'opcache-toolkit' ),
 		],
 
-		// Preload actions
+		// Preload actions.
 		'preload_queued'  => [
 			'success',
 			esc_html__( 'OPcache preload has been queued and will run in the background.', 'opcache-toolkit' ),
@@ -55,7 +57,7 @@ function opcache_toolkit_render_admin_notices() {
 			esc_html__( 'OPcache has been preloaded successfully.', 'opcache-toolkit' ),
 		],
 
-		// Stats actions
+		// Stats actions.
 		'stats_cleared'   => [
 			'success',
 			esc_html__( 'OPcache statistics have been cleared.', 'opcache-toolkit' ),
@@ -65,13 +67,13 @@ function opcache_toolkit_render_admin_notices() {
 			esc_html__( 'OPcache statistics exported successfully.', 'opcache-toolkit' ),
 		],
 
-		// Debug
+		// Debug.
 		'logged'          => [
 			'success',
 			esc_html__( 'Debug log entry recorded.', 'opcache-toolkit' ),
 		],
 
-		// Generic error
+		// Generic error.
 		'error'           => [
 			'error',
 			esc_html__( 'An error occurred while processing your request.', 'opcache-toolkit' ),
