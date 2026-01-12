@@ -261,10 +261,17 @@ All styles are scoped to `.opcache-toolkit-*` classes to avoid conflicts.
 
 ### Available Documentation
 
-- **[Testing Documentation](docs/testing.md)** — PHPUnit and Jest testing guidelines
+- **[Plugin Architecture](docs/architecture.md)** - Plugin architecture
 - **[ADR (Architecture Decision Records)](docs/adr/)** — Key architectural decisions
-- **[Marketing & Positioning](dev/marketing-positioning.md)** — How to market and position OPcache Toolkit
-- **[Roadmap](dev/ROADMAP.md)** — Future features and development plans
+- **[Rest API](docs/rest-api.md)** - Rest API documentation
+- **[How to](docs/how-to.md)** - How-To use the plugin
+- **[Developer Documentation](docs/developer.md)** - Developer documentation
+- **[Multisite Documentation](docs/multisite.md)** - Multisite support
+- **[Setting Documentation](docs/settings.md)** - Plugin settings and options
+- **[WP Cli Cheat Sheet](docs/wp-cli-cheatsheet.md)** - WP-CLI command reference
+- **[Testing Documentation](docs/testing.md)** — PHPUnit and Jest testing guidelines
+- **[Runbook](docs/runbook.md)** - What to check when thing go wrong...
+
 
 ### Getting Help
 
