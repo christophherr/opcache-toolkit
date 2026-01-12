@@ -59,12 +59,9 @@ class StatusEndpoint extends BaseEndpoint {
 	 * @return \WP_REST_Response
 	 */
 	public function handle( \WP_REST_Request $request ): \WP_REST_Response {
-		if ( ! $this->opcache->is_enabled() ) {
-			return $this->error_response(
-				'opcache_disabled',
-				__( 'OPcache is not loaded or enabled on this server.', 'opcache-toolkit' ),
-				503
-			);
+		$check = $this->ensure_opcache_enabled();
+		if ( true !== $check ) {
+			return $check;
 		}
 
 		$status = $this->opcache->get_status( true );

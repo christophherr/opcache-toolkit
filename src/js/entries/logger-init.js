@@ -12,8 +12,8 @@ import { Logger } from '../services/Logger';
 const endpoint = window.opcacheToolkitData?.restUrl + 'opcache-toolkit/v1/log';
 const nonce = window.opcacheToolkitData?.nonce;
 
-if (endpoint && nonce) {
-	const logger = new Logger(endpoint, nonce);
+if ( endpoint && nonce ) {
+	const logger = new Logger( endpoint, nonce );
 	logger.registerGlobalHandlers();
 	window.opcacheToolkitLogger = logger;
 }

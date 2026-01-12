@@ -114,7 +114,7 @@ final class Plugin {
 
 		add_action( 'rest_api_init', [ $this, 'register_rest_endpoints' ] );
 
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
 			\WP_CLI::add_command( 'opcache-toolkit', CLI\Commands::class );
 		}
 	}
@@ -126,6 +126,7 @@ final class Plugin {
 	 */
 	public function register_rest_endpoints(): void {
 		( new REST\StatusEndpoint( self::opcache() ) )->register();
+		( new REST\HealthEndpoint() )->register();
 		( new REST\ChartDataEndpoint( self::stats() ) )->register();
 
 		$reset_command = new Commands\ResetCommand( self::opcache() );
@@ -133,6 +134,7 @@ final class Plugin {
 
 		$preload_command = new Commands\PreloadCommand( self::opcache() );
 		( new REST\PreloadEndpoint( $preload_command ) )->register();
+		( new REST\PreloadProgressEndpoint() )->register();
 		( new REST\LogEndpoint() )->register();
 		( new REST\AnalyticsEndpoint() )->register();
 	}

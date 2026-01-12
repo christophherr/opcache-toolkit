@@ -24,6 +24,11 @@ add_action(
 	'opcache_toolkit_check_alerts',
 	function ( $hit_rate ) {
 
+		$enabled = (bool) opcache_toolkit_get_setting( 'opcache_toolkit_alert_enabled', false );
+		if ( ! $enabled ) {
+			return;
+		}
+
 		$threshold = (float) opcache_toolkit_get_setting( 'opcache_toolkit_alert_threshold', 90 );
 
 		$email   = opcache_toolkit_get_setting( 'opcache_toolkit_alert_email', get_option( 'admin_email' ) );

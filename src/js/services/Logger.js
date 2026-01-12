@@ -11,7 +11,7 @@ export class Logger {
 	 * @param {string} endpoint - REST API endpoint for logging.
 	 * @param {string} nonce    - WordPress nonce for authentication.
 	 */
-	constructor(endpoint, nonce) {
+	constructor( endpoint, nonce ) {
 		/** @type {Array} */
 		this.logs = [];
 		/** @type {number} */
@@ -23,7 +23,7 @@ export class Logger {
 		/** @type {string} */
 		this.nonce = nonce;
 
-		if (this.endpoint && this.nonce) {
+		if ( this.endpoint && this.nonce ) {
 			this.startInterval();
 		}
 	}
@@ -36,15 +36,15 @@ export class Logger {
 	 * @param {Object} context - Additional context.
 	 * @return {void}
 	 */
-	log(level, message, context = {}) {
-		this.logs.push({
+	log( level, message, context = {} ) {
+		this.logs.push( {
 			level,
 			message,
 			context,
 			timestamp: new Date().toISOString()
-		});
+		} );
 
-		if (this.logs.length >= this.batchSize) {
+		if ( this.logs.length >= this.batchSize ) {
 			this.flush();
 		}
 	}
@@ -56,8 +56,8 @@ export class Logger {
 	 * @param {Object} context - Additional context.
 	 * @return {void}
 	 */
-	info(message, context = {}) {
-		this.log('info', message, context);
+	info( message, context = {} ) {
+		this.log( 'info', message, context );
 	}
 
 	/**
@@ -67,8 +67,8 @@ export class Logger {
 	 * @param {Object} context - Additional context.
 	 * @return {void}
 	 */
-	warn(message, context = {}) {
-		this.log('warning', message, context);
+	warn( message, context = {} ) {
+		this.log( 'warning', message, context );
 	}
 
 	/**
@@ -78,8 +78,8 @@ export class Logger {
 	 * @param {Object} context - Additional context.
 	 * @return {void}
 	 */
-	error(message, context = {}) {
-		this.log('error', message, context);
+	error( message, context = {} ) {
+		this.log( 'error', message, context );
 	}
 
 	/**
@@ -89,8 +89,8 @@ export class Logger {
 	 * @param {Object} context - Additional context.
 	 * @return {void}
 	 */
-	debug(message, context = {}) {
-		this.log('debug', message, context);
+	debug( message, context = {} ) {
+		this.log( 'debug', message, context );
 	}
 
 	/**
@@ -99,28 +99,28 @@ export class Logger {
 	 * @return {Promise<void>}
 	 */
 	async flush() {
-		if (this.logs.length === 0) return;
+		if ( this.logs.length === 0 ) return;
 
-		const logsToSend = [...this.logs];
+		const logsToSend = [ ...this.logs ];
 		this.logs = [];
 
 		try {
-			const response = await fetch(this.endpoint, {
+			const response = await fetch( this.endpoint, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					'X-WP-Nonce': this.nonce
 				},
-				body: JSON.stringify({ logs: logsToSend })
-			});
+				body: JSON.stringify( { logs: logsToSend } )
+			} );
 
-			if (!response.ok) {
+			if ( ! response.ok ) {
 				// eslint-disable-next-line no-console
-				console.error('Failed to send logs to server', response.statusText);
+				console.error( 'Failed to send logs to server', response.statusText );
 			}
-		} catch (err) {
+		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error('Error sending logs to server', err);
+			console.error( 'Error sending logs to server', err );
 		}
 	}
 
@@ -128,27 +128,27 @@ export class Logger {
 	 * Start the automatic flush interval.
 	 */
 	startInterval() {
-		setInterval(() => this.flush(), this.batchInterval);
+		setInterval( () => this.flush(), this.batchInterval );
 	}
 
 	/**
 	 * Register global error and promise rejection handlers.
 	 */
 	registerGlobalHandlers() {
-		window.addEventListener('error', (event) => {
-			this.error('Global JS Error', {
+		window.addEventListener( 'error', ( event ) => {
+			this.error( 'Global JS Error', {
 				message: event.message,
 				filename: event.filename,
 				lineno: event.lineno,
 				colno: event.colno,
 				error: event.error ? event.error.stack : null
-			});
-		});
+			} );
+		} );
 
-		window.addEventListener('unhandledrejection', (event) => {
-			this.error('Unhandled Promise Rejection', {
+		window.addEventListener( 'unhandledrejection', ( event ) => {
+			this.error( 'Unhandled Promise Rejection', {
 				reason: event.reason ? event.reason.stack || event.reason : 'Unknown'
-			});
-		});
+			} );
+		} );
 	}
 }

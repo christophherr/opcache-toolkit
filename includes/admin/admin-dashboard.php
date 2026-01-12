@@ -27,18 +27,21 @@ add_action(
 		$cached   = $data['cached'] ?? [];
 		$wasted   = $data['wasted'] ?? [];
 
+		wp_enqueue_script( 'postbox' );
+		wp_enqueue_script( 'dashboard' );
+
 		// Main Dashboard Bundle (includes Chart.js, Live Polling, Logger, etc).
 		$script_path = 'assets/js/dashboard.js';
 		$asset_file  = OPCACHE_TOOLKIT_PATH . 'assets/js/dashboard.asset.php';
 		$asset       = file_exists( $asset_file ) ? include $asset_file : [
-			'dependencies' => [ 'wp-i18n' ],
+			'dependencies' => [ 'wp-i18n', 'jquery' ],
 			'version'      => OPCACHE_TOOLKIT_VERSION,
 		];
 
 		wp_enqueue_script(
 			'opcache-toolkit-dashboard',
 			plugins_url( $script_path, OPCACHE_TOOLKIT_FILE ),
-			$asset['dependencies'],
+			array_merge( $asset['dependencies'], [ 'postbox', 'dashboard' ] ),
 			$asset['version'],
 			true
 		);

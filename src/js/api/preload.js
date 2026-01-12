@@ -12,15 +12,17 @@
  * @return {Promise<Object>} Progress data.
  * @throws {Error} If fetch fails.
  */
-export async function fetchPreloadProgress(endpoint, nonce) {
-	const response = await fetch(endpoint, {
+export async function fetchPreloadProgress( endpoint, nonce ) {
+	const response = await fetch( endpoint, {
 		headers: {
 			'X-WP-Nonce': nonce
 		}
-	});
+	} );
 
-	if (!response.ok) {
-		throw new Error(`Failed to fetch preload progress: ${response.statusText}`);
+	if ( ! response.ok ) {
+		throw new Error(
+			`Failed to fetch preload progress: ${ response.statusText }`
+		);
 	}
 
 	return await response.json();

@@ -32,27 +32,27 @@ global.opcacheToolkitWPAdminDashboard = {
 	dashboardUrl: 'http://example.com/wp-admin/admin.php?page=opcache-manager'
 };
 
-global.window.confirm = jest.fn(() => true);
+global.window.confirm = jest.fn( () => true );
 global.URL.createObjectURL = jest.fn();
 global.URL.revokeObjectURL = jest.fn();
 
 // Mock fetch globally
-global.fetch = jest.fn(() =>
-	Promise.resolve({
+global.fetch = jest.fn( () =>
+	Promise.resolve( {
 		ok: true,
-		json: () => Promise.resolve({})
-	})
+		json: () => Promise.resolve( {} )
+	} )
 );
 
-global.ResizeObserver = jest.fn().mockImplementation(() => ({
+global.ResizeObserver = jest.fn().mockImplementation( () => ( {
 	observe: jest.fn(),
 	unobserve: jest.fn(),
 	disconnect: jest.fn()
-}));
+} ) );
 
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty( window, 'matchMedia', {
 	writable: true,
-	value: jest.fn().mockImplementation((query) => ({
+	value: jest.fn().mockImplementation( ( query ) => ( {
 		matches: false,
 		media: query,
 		onchange: null,
@@ -61,23 +61,23 @@ Object.defineProperty(window, 'matchMedia', {
 		addEventListener: jest.fn(),
 		removeEventListener: jest.fn(),
 		dispatchEvent: jest.fn()
-	}))
-});
+	} ) )
+} );
 
 jest.mock(
 	'@wordpress/i18n',
-	() => ({
-		__: (val) => val,
-		_x: (val) => val,
-		_n: (s, p, n) => (n > 1 ? p : s),
-		_nx: (s, p, n) => (n > 1 ? p : s),
+	() => ( {
+		__: ( val ) => val,
+		_x: ( val ) => val,
+		_n: ( s, p, n ) => ( n > 1 ? p : s ),
+		_nx: ( s, p, n ) => ( n > 1 ? p : s ),
 		isRTL: () => false
-	}),
+	} ),
 	{ virtual: true }
 );
 
 // Mock CSS imports if identity-obj-proxy is not working or missing
-jest.mock('identity-obj-proxy', () => ({}), { virtual: true });
+jest.mock( 'identity-obj-proxy', () => ( {} ), { virtual: true } );
 
 // Start MSW server for network mocking is temporarily disabled due to runner conflicts.
 /*

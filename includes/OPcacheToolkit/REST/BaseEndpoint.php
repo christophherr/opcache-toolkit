@@ -82,4 +82,20 @@ abstract class BaseEndpoint {
 			$status
 		);
 	}
+
+	/**
+	 * Ensure OPcache is enabled.
+	 *
+	 * @return \WP_REST_Response|true True if enabled, WP_REST_Response otherwise.
+	 */
+	protected function ensure_opcache_enabled(): \WP_REST_Response|bool {
+		if ( ! \OPcacheToolkit\Plugin::opcache()->is_enabled() ) {
+			return $this->error_response(
+				'opcache_disabled',
+				__( 'OPcache is not loaded or enabled on this server.', 'opcache-toolkit' ),
+				200
+			);
+		}
+		return true;
+	}
 }

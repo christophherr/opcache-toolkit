@@ -66,6 +66,11 @@ class ChartDataEndpoint extends BaseEndpoint {
 	 * @return \WP_REST_Response
 	 */
 	public function handle( \WP_REST_Request $request ): \WP_REST_Response {
+		$check = $this->ensure_opcache_enabled();
+		if ( true !== $check ) {
+			return $check;
+		}
+
 		$limit = (int) $request->get_param( 'limit' );
 		$data  = $this->stats->get_chart_data( $limit );
 

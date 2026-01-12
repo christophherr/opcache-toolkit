@@ -1,6 +1,6 @@
 <?php
 /**
- * Analytics REST Endpoint.
+ * Preload Progress REST Endpoint.
  *
  * @package OPcacheToolkit
  */
@@ -9,14 +9,12 @@ declare( strict_types=1 );
 
 namespace OPcacheToolkit\REST;
 
-use OPcacheToolkit\Plugin;
-
 /**
- * Class AnalyticsEndpoint.
+ * Class PreloadProgressEndpoint.
  *
- * Provides advanced cache analytics data.
+ * Provides real-time preloading progress.
  */
-class AnalyticsEndpoint extends BaseEndpoint {
+class PreloadProgressEndpoint extends BaseEndpoint {
 
 	/**
 	 * Register the route.
@@ -26,7 +24,7 @@ class AnalyticsEndpoint extends BaseEndpoint {
 	public function register(): void {
 		register_rest_route(
 			'opcache-toolkit/v1',
-			'/analytics',
+			'/preload-progress',
 			[
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => [ $this, 'handle' ],
@@ -47,13 +45,14 @@ class AnalyticsEndpoint extends BaseEndpoint {
 			return $check;
 		}
 
-		return new \WP_REST_Response(
+		$progress = get_option(
+			'opcache_toolkit_preload_progress',
 			[
-				'success'    => true,
-				'prediction' => Plugin::stats()->get_memory_prediction(),
-				'ghosts'     => Plugin::opcache()->get_ghost_scripts(),
-				'groups'     => Plugin::opcache()->get_scripts_by_group(),
+				'total' => 0,
+				'done'  => 0,
 			]
 		);
+
+		return $this->success_response( $progress );
 	}
 }

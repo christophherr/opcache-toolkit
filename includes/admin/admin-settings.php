@@ -53,6 +53,16 @@ add_action(
 
 		register_setting(
 			'opcache_toolkit_settings',
+			'opcache_toolkit_alert_enabled',
+			[
+				'type'              => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default'           => false,
+			]
+		);
+
+		register_setting(
+			'opcache_toolkit_settings',
 			'opcache_toolkit_alert_email',
 			[
 				'type'              => 'string',
@@ -110,22 +120,25 @@ function opcache_toolkit_render_settings_page() {
 	}
 
 	// Load settings.
-	$threshold  = opcache_toolkit_get_setting( 'opcache_toolkit_alert_threshold', 90 );
-	$email      = opcache_toolkit_get_setting( 'opcache_toolkit_alert_email', get_option( 'admin_email' ) );
-	$auto_reset = opcache_toolkit_get_setting( 'opcache_toolkit_auto_reset', false );
-	$retention  = opcache_toolkit_get_setting( 'opcache_toolkit_retention_days', 90 );
+	$threshold     = opcache_toolkit_get_setting( 'opcache_toolkit_alert_threshold', 90 );
+	$email         = opcache_toolkit_get_setting( 'opcache_toolkit_alert_email', get_option( 'admin_email' ) );
+	$alert_enabled = opcache_toolkit_get_setting( 'opcache_toolkit_alert_enabled', false );
+	$auto_reset    = opcache_toolkit_get_setting( 'opcache_toolkit_auto_reset', false );
+	$retention     = opcache_toolkit_get_setting( 'opcache_toolkit_retention_days', 90 );
 
 	// Handle saving network settings.
 	if ( OPCACHE_TOOLKIT_IS_NETWORK && isset( $_POST['opcache_toolkit_save_network_settings'] ) ) {
 		check_admin_referer( 'opcache_toolkit_network_settings' );
 
-		$threshold  = isset( $_POST['opcache_toolkit_alert_threshold'] ) ? (float) $_POST['opcache_toolkit_alert_threshold'] : 90;
-		$email      = isset( $_POST['opcache_toolkit_alert_email'] ) ? sanitize_email( wp_unslash( $_POST['opcache_toolkit_alert_email'] ) ) : get_option( 'admin_email' );
-		$auto_reset = isset( $_POST['opcache_toolkit_auto_reset'] ) ? 1 : 0;
-		$retention  = isset( $_POST['opcache_toolkit_retention_days'] ) ? (int) $_POST['opcache_toolkit_retention_days'] : 90;
+		$threshold     = isset( $_POST['opcache_toolkit_alert_threshold'] ) ? (float) $_POST['opcache_toolkit_alert_threshold'] : 90;
+		$email         = isset( $_POST['opcache_toolkit_alert_email'] ) ? sanitize_email( wp_unslash( $_POST['opcache_toolkit_alert_email'] ) ) : get_option( 'admin_email' );
+		$alert_enabled = isset( $_POST['opcache_toolkit_alert_enabled'] ) ? 1 : 0;
+		$auto_reset    = isset( $_POST['opcache_toolkit_auto_reset'] ) ? 1 : 0;
+		$retention     = isset( $_POST['opcache_toolkit_retention_days'] ) ? (int) $_POST['opcache_toolkit_retention_days'] : 90;
 
 		update_site_option( 'opcache_toolkit_alert_threshold', $threshold );
 		update_site_option( 'opcache_toolkit_alert_email', $email );
+		update_site_option( 'opcache_toolkit_alert_enabled', $alert_enabled );
 		update_site_option( 'opcache_toolkit_auto_reset', $auto_reset );
 		update_site_option( 'opcache_toolkit_retention_days', $retention );
 
@@ -190,6 +203,17 @@ function opcache_toolkit_render_settings_page() {
 				<h2><?php esc_html_e( 'Email Alerts', 'opcache-toolkit' ); ?></h2>
 
 				<table class="form-table">
+					<tr>
+						<th><?php esc_html_e( 'Enable Alerts', 'opcache-toolkit' ); ?></th>
+						<td>
+							<label>
+								<input type="checkbox" name="opcache_toolkit_alert_enabled" value="1"
+									<?php checked( $alert_enabled, 1 ); ?>>
+								<?php esc_html_e( 'Send email alerts when hit rate is low', 'opcache-toolkit' ); ?>
+							</label>
+						</td>
+					</tr>
+
 					<tr>
 						<th><?php esc_html_e( 'Hit Rate Threshold', 'opcache-toolkit' ); ?></th>
 						<td>

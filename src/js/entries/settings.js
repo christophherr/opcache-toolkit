@@ -4,27 +4,27 @@
  * @package
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener( 'DOMContentLoaded', () => {
 	// Logic from opcache-toolkit-settings.js.
-	const tabs = document.querySelectorAll('.opcache-toolkit-tabs a');
-	const tabContents = document.querySelectorAll('.opcache-toolkit-tab');
+	const tabs = document.querySelectorAll( '.opcache-toolkit-tabs a' );
+	const tabContents = document.querySelectorAll( '.opcache-toolkit-tab' );
 
-	tabs.forEach((tab) => {
-		tab.addEventListener('click', (e) => {
+	tabs.forEach( ( tab ) => {
+		tab.addEventListener( 'click', ( e ) => {
 			e.preventDefault();
-			const target = tab.getAttribute('data-tab');
+			const target = tab.getAttribute( 'data-tab' );
 
-			tabs.forEach((t) => t.classList.remove('active'));
-			tab.classList.add('active');
+			tabs.forEach( ( t ) => t.classList.remove( 'active' ) );
+			tab.classList.add( 'active' );
 
-			tabContents.forEach((content) => {
+			tabContents.forEach( ( content ) => {
 				content.classList.toggle(
 					'active',
-					content.id === `opcache-toolkit-tab-${target}`
+					content.id === `opcache-toolkit-tab-${ target }`
 				);
-			});
-		});
-	});
+			} );
+		} );
+	} );
 
 	// console.log( 'OPcache Toolkit Settings Initialized' );
-});
+} );
