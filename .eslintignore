@@ -1,0 +1,15 @@
+assets/js/chart.js
+assets/js/chartjs-plugin-zoom.js
+build
+# Ignore dependencies
+node_modules
+vendor
+.github
+package-lock.json
+
+# Ignore config files
+webpack.config.js
+jest.config.js
+phpunit.unit.xml
+phpunit.integration.xml
+

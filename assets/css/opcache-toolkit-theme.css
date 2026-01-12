@@ -1,0 +1,23 @@
+/* ------------------------------------------------------------------------
+   OPcache Toolkit – Shared Theme Variables
+   ------------------------------------------------------------------------ */
+
+:root {
+    --opcache-toolkit-bg: #ffffff;
+    --opcache-toolkit-border: #dcdcde;
+    --opcache-toolkit-text: #1d2327;
+    --opcache-toolkit-muted: #555;
+    --opcache-toolkit-primary: #2271b1;
+    --opcache-toolkit-success: #38c172;
+    --opcache-toolkit-danger: #e55353;
+    --opcache-toolkit-card-shadow: rgba(0,0,0,0.05);
+}
+
+/* Optional dark mode */
+body.wp-admin.dark-mode {
+    --opcache-toolkit-bg: #1e1f20;
+    --opcache-toolkit-border: #333;
+    --opcache-toolkit-text: #f0f0f0;
+    --opcache-toolkit-muted: #aaa;
+    --opcache-toolkit-card-shadow: rgba(0,0,0,0.3);
+}

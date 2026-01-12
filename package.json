@@ -1,0 +1,27 @@
+{
+	"name": "opcache-toolkit",
+	"version": "1.0.0",
+	"author": "Christoph Herr",
+	"description": "Events Calendar for LearnDash WordPress plugin",
+	"homepage": "https://www.christophherr.com",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/christophherr/opcache-toolkit"
+	},
+	"private": true,
+	"license": "GPL-3.0-or-later",
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"lint:js": "wp-scripts lint-js",
+		"lint": "eslint . --ext .js,.jsx",
+		"lint:js:fix": "eslint . --ext .js,.jsx --fix",
+		"format": "wp-scripts format",
+		"test": "jest",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^31.0.0"
+	}
+}

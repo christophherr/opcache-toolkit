@@ -1,0 +1,48 @@
+/* OPcache Toolkit – Settings Page */
+
+.opcache-toolkit-settings-wrap {
+    margin-top: 20px;
+}
+
+/* Tabs */
+.opcache-toolkit-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.opcache-toolkit-tabs a {
+    padding: 8px 14px;
+    border: 1px solid var(--opcache-toolkit-border);
+    border-radius: 4px;
+    background: var(--opcache-toolkit-bg);
+    text-decoration: none;
+    color: #1d2327;
+    font-weight: 500;
+}
+
+.opcache-toolkit-tabs a.active {
+    background: var(--opcache-toolkit-primary);
+    color: var(--opcache-toolkit-bg);
+    border-color: var(--opcache-toolkit-primary);
+}
+
+/* Tab content */
+.opcache-toolkit-tab {
+    display: none;
+    background: var(--opcache-toolkit-bg);
+    border: 1px solid var(--opcache-toolkit-border);
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.opcache-toolkit-tab.active {
+    display: block;
+}
+
+/* Inline validation */
+.opcache-toolkit-error {
+    color: var(--opcache-toolkit-danger);
+    font-size: 12px;
+    margin-top: 4px;
+}

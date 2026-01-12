@@ -1,0 +1,319 @@
+<?php
+/**
+ * OPcache Toolkit – Database layer
+ *
+ * - Schema creation & upgrades (using dbDelta)
+ * - Stats table helpers
+ * - Retention cleanup
+ * - Preload report helpers
+ * - Maintenance actions (clear stats, export CSV)
+ *
+ * @package OPcacheToolkit
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/*
+-------------------------------------------------------------------------
+ * TABLE NAME HELPERS
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Get the full table name for OPcache stats.
+ *
+ * @return string
+ */
+function opcache_toolkit_get_stats_table_name() {
+	global $wpdb;
+	return $wpdb->prefix . 'opcache_toolkit_stats';
+}
+
+/*
+-------------------------------------------------------------------------
+ * SCHEMA CREATION & UPGRADES (dbDelta)
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Create or upgrade the OPcache stats table using dbDelta.
+ *
+ * This does NOT register hooks by itself. Call from your main plugin file:
+ * register_activation_hook( OPCACHE_TOOLKIT_FILE, 'opcache_toolkit_install_schema' );
+ *
+ * @return void
+ */
+function opcache_toolkit_install_schema() {
+	global $wpdb;
+
+	require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+	$table           = opcache_toolkit_get_stats_table_name();
+	$charset_collate = $wpdb->get_charset_collate();
+
+	// Keep this in sync with any future schema changes.
+	$sql = "
+        CREATE TABLE {$table} (
+            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            recorded_at DATETIME NOT NULL,
+            hit_rate FLOAT NOT NULL,
+            cached_scripts BIGINT(20) UNSIGNED NOT NULL,
+            wasted_memory BIGINT(20) UNSIGNED NOT NULL,
+            PRIMARY KEY  (id),
+            KEY recorded_at (recorded_at)
+        ) {$charset_collate};
+    ";
+
+	dbDelta( $sql );
+}
+
+/*
+-------------------------------------------------------------------------
+ * RETENTION CLEANUP
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Delete stats older than the configured retention period.
+ *
+ * Uses 'opcache_toolkit_retention_days' setting (multisite-aware via opcache_toolkit_get_setting).
+ *
+ * @return void
+ */
+function opcache_toolkit_cleanup_stats_retention() {
+	if ( ! function_exists( 'opcache_toolkit_get_setting' ) ) {
+		return;
+	}
+
+	$days = (int) opcache_toolkit_get_setting( 'opcache_toolkit_retention_days', 90 );
+	if ( $days < 1 ) {
+		$days = 1;
+	}
+
+	global $wpdb;
+	$table = opcache_toolkit_get_stats_table_name();
+
+	// Delete records older than NOW() - INTERVAL X DAY
+	$wpdb->query(
+		$wpdb->prepare(
+			"DELETE FROM {$table} WHERE recorded_at < (NOW() - INTERVAL %d DAY)",
+			$days
+		)
+	);
+}
+
+/**
+ * Schedule daily retention cleanup.
+ *
+ * Call this from plugin activation, or lazily check on admin_init.
+ *
+ * @return void
+ */
+function opcache_toolkit_schedule_retention_cleanup() {
+	if ( ! wp_next_scheduled( 'opcache_toolkit_daily_stats_cleanup' ) ) {
+		wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'opcache_toolkit_daily_stats_cleanup' );
+	}
+}
+add_action( 'opcache_toolkit_daily_stats_cleanup', 'opcache_toolkit_cleanup_stats_retention' );
+
+/*
+-------------------------------------------------------------------------
+ * STATS HELPERS
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Insert a single stats row into the table.
+ *
+ * @param string $recorded_at   MySQL datetime.
+ * @param float  $hit_rate      Hit rate percentage.
+ * @param int    $cached        Cached scripts count.
+ * @param int    $wasted        Wasted memory in bytes.
+ * @return void
+ */
+function opcache_toolkit_insert_stats_row( $recorded_at, $hit_rate, $cached, $wasted ) {
+	global $wpdb;
+	$table = opcache_toolkit_get_stats_table_name();
+
+	$wpdb->insert(
+		$table,
+		[
+			'recorded_at'    => $recorded_at,
+			'hit_rate'       => (float) $hit_rate,
+			'cached_scripts' => (int) $cached,
+			'wasted_memory'  => (int) $wasted,
+		],
+		[ '%s', '%f', '%d', '%d' ]
+	);
+}
+
+/**
+ * Clear all stats (truncate table).
+ *
+ * @return void
+ */
+function opcache_toolkit_clear_stats_table() {
+	global $wpdb;
+	$table = opcache_toolkit_get_stats_table_name();
+	$wpdb->query( "TRUNCATE TABLE {$table}" );
+}
+
+/**
+ * Fetch all stats rows ordered by time (for export, etc.).
+ *
+ * @return array[] Array of associative rows.
+ */
+function opcache_toolkit_get_all_stats_rows() {
+	global $wpdb;
+	$table = opcache_toolkit_get_stats_table_name();
+
+	return $wpdb->get_results(
+		"SELECT * FROM {$table} ORDER BY recorded_at ASC",
+		ARRAY_A
+	);
+}
+
+/*
+-------------------------------------------------------------------------
+ * PRELOAD REPORT HELPERS
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Store preload report values.
+ *
+ * @param int $count Number of files compiled.
+ * @return void
+ */
+function opcache_toolkit_store_preload_report( $count ) {
+	$time = time();
+
+	if ( defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) && OPCACHE_TOOLKIT_IS_NETWORK ) {
+		update_site_option( 'opcache_toolkit_preload_time', $time );
+		update_site_option( 'opcache_toolkit_preload_count', (int) $count );
+	} else {
+		update_option( 'opcache_toolkit_preload_time', $time );
+		update_option( 'opcache_toolkit_preload_count', (int) $count );
+	}
+}
+
+/**
+ * Get preload report (formatted + raw values).
+ *
+ * @return array{time:string,count:int,raw_time:int,raw_count:int}
+ */
+function opcache_toolkit_get_preload_report() {
+
+	$get = ( defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) && OPCACHE_TOOLKIT_IS_NETWORK )
+		? 'get_site_option'
+		: 'get_option';
+
+	$raw_time  = (int) $get( 'opcache_toolkit_preload_time', 0 );
+	$raw_count = (int) $get( 'opcache_toolkit_preload_count', 0 );
+
+	if ( $raw_time > 0 ) {
+		$time = date_i18n(
+			get_option( 'date_format' ) . ' ' . get_option( 'time_format' ),
+			$raw_time
+		);
+	} else {
+		$time = '—';
+	}
+
+	return [
+		'time'      => $time,
+		'count'     => $raw_count,
+		'raw_time'  => $raw_time,
+		'raw_count' => $raw_count,
+	];
+}
+
+/*
+-------------------------------------------------------------------------
+ * MAINTENANCE ACTIONS: CLEAR & EXPORT STATS
+ * ------------------------------------------------------------------------- */
+
+/**
+ * Handle "Clear OPcache Statistics" admin-post action.
+ *
+ * @return void
+ */
+add_action(
+	'admin_post_opcache_toolkit_clear_stats',
+	function () {
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Access denied.', 'opcache-toolkit' ) );
+		}
+
+		check_admin_referer( 'opcache_toolkit_clear_stats' );
+
+		opcache_toolkit_clear_stats_table();
+
+		wp_redirect( wp_get_referer() );
+		exit;
+	}
+);
+
+/**
+ * Handle "Export OPcache Statistics" admin-post action (CSV).
+ *
+ * Uses WP_Filesystem + a temporary file for portability.
+ *
+ * @return void
+ */
+add_action(
+	'admin_post_opcache_toolkit_export_stats',
+	function () {
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Access denied.', 'opcache-toolkit' ) );
+		}
+
+		check_admin_referer( 'opcache_toolkit_export_stats' );
+
+		global $wp_filesystem;
+
+		if ( empty( $wp_filesystem ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+
+		if ( empty( $wp_filesystem ) ) {
+			wp_die( esc_html__( 'Could not initialize filesystem API.', 'opcache-toolkit' ) );
+		}
+
+		$rows = opcache_toolkit_get_all_stats_rows();
+
+		// Create temp file
+		$tmp = wp_tempnam( 'opcache_stats.csv' );
+		if ( ! $tmp ) {
+			wp_die( esc_html__( 'Unable to create temporary file.', 'opcache-toolkit' ) );
+		}
+
+		// Generate CSV content
+		$handle = fopen( 'php://temp', 'r+' );
+
+		if ( ! empty( $rows ) ) {
+			fputcsv( $handle, array_keys( $rows[0] ) );
+			foreach ( $rows as $row ) {
+				fputcsv( $handle, $row );
+			}
+		}
+
+		rewind( $handle );
+		$csv = stream_get_contents( $handle );
+		fclose( $handle );
+
+		// Write CSV using WP_Filesystem
+		$wp_filesystem->put_contents( $tmp, $csv, FS_CHMOD_FILE );
+
+		// Send file to browser
+		header( 'Content-Type: text/csv' );
+		header( 'Content-Disposition: attachment; filename="opcache_stats.csv"' );
+		header( 'Content-Length: ' . filesize( $tmp ) );
+
+		readfile( $tmp );
+
+		// Cleanup
+		unlink( $tmp );
+		exit;
+	}
+);

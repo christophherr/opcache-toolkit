@@ -1,0 +1,65 @@
+OPCACHE(1)                 User Commands                OPCACHE(1)
+
+NAME
+    opcache – WP‑CLI interface for OPcache Toolkit
+
+SYNOPSIS
+    wp opcache-toolkit <command> [options]
+
+DESCRIPTION
+    OPcache Toolkit provides a complete WP‑CLI interface for inspecting,
+    resetting, preloading, warming, and maintaining OPcache.
+
+COMMANDS
+    info
+        Display raw OPcache information from opcache_get_status().
+
+    status
+        Show summarized OPcache status (memory, strings, statistics).
+
+    health
+        Display OPcache health indicators including hit rate and memory usage.
+
+    reset
+        Reset OPcache immediately.
+
+    preload [--async]
+        Preload OPcache by compiling all PHP files in plugins and themes.
+        Use --async to queue the job via Action Scheduler.
+
+    preload report
+        Show the last preload report (files compiled, timestamp).
+
+    warmup
+        Compile only uncached PHP files.
+
+    stats clear
+        Clear the OPcache statistics database table.
+
+    stats export [--json]
+        Export OPcache statistics as JSON.
+
+    log
+        Run the daily OPcache logging job immediately.
+
+    cleanup
+        Run the OPcache retention cleanup job immediately.
+
+    config
+        Display OPcache ini configuration.
+
+OPTIONS
+    --json
+        Output machine‑readable JSON instead of human‑readable text.
+
+EXAMPLES
+    wp opcache-toolkit reset
+    wp opcache-toolkit preload --async
+    wp opcache-toolkit status --json
+    wp opcache-toolkit stats export --json > stats.json
+
+AUTHOR
+    OPcache Toolkit Plugin
+
+COPYRIGHT
+    This is free software; see the source for copying conditions.

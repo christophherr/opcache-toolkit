@@ -1,0 +1,45 @@
+{
+	"name": "christophherr/opcahe-toolkit",
+	"description": "Events Calendar for LearnDash",
+	"license": "GPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Christoph Herr",
+			"email": "info@christophherr.com"
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"require-dev": {
+		"phpcompatibility/phpcompatibility-wp": "^3.0.0@dev",
+		"phpcompatibility/php-compatibility": "^10.0.0@dev",
+		"php-parallel-lint/php-parallel-lint": "^1.4",
+		"roave/security-advisories": "dev-latest",
+		"wp-coding-standards/wpcs": "^3.3",
+		"phpunit/phpunit": "^9.6",
+		"yoast/phpunit-polyfills": "^2.0",
+		"brain/monkey": "^2.6",
+		"mockery/mockery": "^1.5"
+	},
+	"scripts": {
+		"phpcs": "phpcs",
+		"phpcbf": "phpcbf",
+		"test:unit": "phpunit -c phpunit.unit.xml",
+		"test:integration": "phpunit -c phpunit.integration.xml",
+		"test": [
+			"@test:unit",
+			"@test:integration"
+		],
+		"php8-check": "phpcs . --standard=PHPCompatibilityWP --severity=1 --runtime-set testVersion 8.0- --extensions=php --ignore=vendor"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"autoload": {
+		"psr-4": {
+			"OPcacheToolkit\\": "includes/"
+		}
+	}
+}

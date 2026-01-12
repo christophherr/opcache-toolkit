@@ -1,0 +1,9 @@
+build/
+vendor/
+node_modules/
+_zip/
+.DS_Store
+composer.lock
+dev
+.junie
+.phpunit.result.cache

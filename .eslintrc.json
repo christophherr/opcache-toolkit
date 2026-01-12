@@ -1,0 +1,30 @@
+{
+	"extends": [
+		"plugin:@wordpress/eslint-plugin/recommended",
+		"plugin:prettier/recommended"
+	],
+	"env": {
+		"browser": true,
+		"jest": true,
+		"jquery": true,
+		"es6": true
+	},
+	"globals": {
+		"ajaxurl": "readonly",
+		"eaEventsCalendar": "readonly",
+		"ea_calendar_admin": "readonly",
+		"wp": "readonly",
+		"HTMLElement": "readonly",
+		"customElements": "readonly"
+	},
+	"rules": {
+		"camelcase": [
+			"error",
+			{ "properties": "never", "ignoreDestructuring": true }
+		],
+		"no-console": "warn",
+		"jsdoc/require-param-type": "off",
+		"jsdoc/require-returns-description": "off",
+		"import/no-unresolved": "off"
+	}
+}

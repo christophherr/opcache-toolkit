@@ -1,0 +1,60 @@
+/* OPcache Toolkit – Dashboard Widget */
+
+#opcache-toolkit-widget {
+    padding: 12px;
+    background: var(--opcache-toolkit-bg);
+    border: 1px solid var(--opcache-toolkit-border);
+    border-radius: 6px;
+    color: var(--opcache-toolkit-text);
+    font-size: 13px;
+}
+
+.opcache-toolkit-widget-loading {
+    opacity: 0.7;
+}
+
+.opcache-toolkit-widget-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.opcache-toolkit-widget-label {
+    font-weight: 600;
+}
+
+.opcache-toolkit-widget-bar {
+    height: 6px;
+    background: var(--opcache-toolkit-border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.opcache-toolkit-widget-bar-fill {
+    height: 100%;
+    background: var(--opcache-toolkit-primary);
+}
+
+.opcache-toolkit-widget-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.opcache-toolkit-widget-actions a {
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.opcache-toolkit-reset-btn {
+    background: var(--opcache-toolkit-danger);
+    color: var(--opcache-toolkit-bg);
+}
+
+.opcache-toolkit-dashboard-btn {
+    background: var(--opcache-toolkit-primary);
+    color: var(--opcache-toolkit-bg);
+}
