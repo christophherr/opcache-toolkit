@@ -1,0 +1,13 @@
+name: Release Plugin
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  release:
+    uses: christophherr/ch-actions/.github/workflows/release-plugin.yml@main
+    secrets:
+      WP_UPLOADER_USERNAME: ${{ secrets.WP_UPLOADER_USERNAME }}
+      WP_UPLOADER_PASSWORD: ${{ secrets.WP_UPLOADER_PASSWORD }}

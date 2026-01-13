@@ -1,0 +1,13 @@
+name: Test Plugin
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+      - testing
+
+jobs:
+  tests:
+    uses: christophherr/ch-actions/.github/workflows/test-plugin.yml@main

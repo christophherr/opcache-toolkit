@@ -1,0 +1,11 @@
+name: Build Plugin
+
+on:
+  push:
+    branches:
+      - testing
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: christophherr/ch-actions/.github/workflows/build-plugin.yml@main
