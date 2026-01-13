@@ -17,7 +17,7 @@ tests/
 babel.config.js
 webpack.config.js
 
-# Composer (excluded from ZIP)
+# Composer
 composer.json
 composer.lock
 
