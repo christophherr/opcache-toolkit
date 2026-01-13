@@ -30,6 +30,14 @@ class CommandsTest extends BaseTestCase {
 		parent::setUp();
 		$this->cli = new Commands();
 
+		if ( ! defined( 'OPCACHE_TOOLKIT_PATH' ) ) {
+			define( 'OPCACHE_TOOLKIT_PATH', dirname( __DIR__, 3 ) . DIRECTORY_SEPARATOR );
+		}
+
+		if ( ! function_exists( 'opcache_toolkit_check_schema' ) ) {
+			require_once OPCACHE_TOOLKIT_PATH . 'includes/core/db.php';
+		}
+
 		if ( ! defined( 'OPCACHE_TOOLKIT_VERSION' ) ) {
 			define( 'OPCACHE_TOOLKIT_VERSION', '1.0.0' );
 		}

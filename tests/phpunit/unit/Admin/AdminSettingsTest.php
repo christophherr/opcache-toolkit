@@ -20,9 +20,49 @@ class AdminSettingsTest extends BaseTestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		if ( ! function_exists( 'opcache_toolkit_get_setting' ) ) {
-			require_once __DIR__ . '/../../../../includes/admin/admin-settings.php';
+
+		// Load the real functions.
+		if ( ! defined( 'OPCACHE_TOOLKIT_PATH' ) ) {
+			define( 'OPCACHE_TOOLKIT_PATH', dirname( __DIR__, 4 ) . DIRECTORY_SEPARATOR );
 		}
+		if ( ! function_exists( 'opcache_toolkit_get_setting' ) ) {
+			require_once OPCACHE_TOOLKIT_PATH . 'includes/admin/admin-settings.php';
+		}
+
+		// Mock the WordPress functions they call.
+		$options = &$this->options;
+		Monkey\Functions\when( 'get_option' )->alias(
+			function ( $n, $d = false ) use ( &$options ) {
+				return $options[ $n ] ?? $d;
+			}
+		);
+		Monkey\Functions\when( 'update_option' )->alias(
+			function ( $n, $v ) use ( &$options ) {
+				$options[ $n ] = $v;
+				return true;
+			}
+		);
+		Monkey\Functions\when( 'get_site_option' )->alias(
+			function ( $n, $d = false ) use ( &$options ) {
+				return $options[ $n ] ?? $d;
+			}
+		);
+		Monkey\Functions\when( 'update_site_option' )->alias(
+			function ( $n, $v ) use ( &$options ) {
+				$options[ $n ] = $v;
+				return true;
+			}
+		);
+		Monkey\Functions\when( 'admin_url' )->alias(
+			function ( $p = '' ) {
+				return 'http://example.com/wp-admin/' . $p;
+			}
+		);
+		Monkey\Functions\when( 'network_admin_url' )->alias(
+			function ( $p = '' ) {
+				return 'http://example.com/network-admin/' . $p;
+			}
+		);
 	}
 
 	/**
@@ -62,13 +102,12 @@ class AdminSettingsTest extends BaseTestCase {
 
 	/**
 	 * Test multisite behavior.
+	 *
+	 * @group multisite
 	 */
 	public function test_multisite_helpers(): void {
-		// We can't redefine OPCACHE_TOOLKIT_IS_NETWORK if it was already defined.
-		// If it's already defined as false, we can't test multisite in this run easily
-		// without using separate test files or process isolation.
 		if ( ! OPCACHE_TOOLKIT_IS_NETWORK ) {
-			$this->markTestSkipped( 'OPCACHE_TOOLKIT_IS_NETWORK is already defined as false.' );
+			$this->markTestSkipped( 'OPCACHE_TOOLKIT_IS_NETWORK is false. Run with --group multisite and OPCACHE_TOOLKIT_TEST_MULTISITE=true.' );
 		}
 
 		$this->options['net_option'] = 'net_value';

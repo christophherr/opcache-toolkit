@@ -136,35 +136,8 @@ namespace OPcacheToolkit\Tests\Unit {
 			);
 			Monkey\Functions\when( 'is_multisite' )->justReturn( false );
 			Monkey\Functions\when( 'wp_safe_redirect' )->alias( function () {} );
-			Monkey\Functions\when( 'opcache_toolkit_install_schema' )->alias( function () {} );
-			Monkey\Functions\when( 'opcache_toolkit_schedule_daily_event' )->alias( function () {} );
-			Monkey\Functions\when( 'opcache_toolkit_schedule_retention_cleanup' )->alias( function () {} );
-			Monkey\Functions\when( 'opcache_toolkit_get_setting' )->alias(
-				function ( $n, $d = false ) use ( &$options ) {
-					return $options[ $n ] ?? $d;
-				}
-			);
-			Monkey\Functions\when( 'opcache_toolkit_update_setting' )->alias(
-				function ( $n, $v ) use ( &$options ) {
-					$options[ $n ] = $v;
-					return true;
-				}
-			);
-			Monkey\Functions\when( 'opcache_toolkit_admin_url' )->alias( function ( $p = '' ) {
-				if ( defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) && OPCACHE_TOOLKIT_IS_NETWORK ) {
-					return 'http://example.com/network-admin/' . $p;
-				}
-				return 'http://example.com/wp-admin/' . $p;
-			} );
-			Monkey\Functions\when( 'opcache_toolkit_user_can_manage_opcache' )->alias(
-				function() {
-					if ( is_multisite() ) {
-						return current_user_can( 'manage_network' );
-					}
-					return current_user_can( 'manage_options' );
-				}
-			);
-			Monkey\Functions\when( 'opcache_toolkit_check_schema' )->alias( function () {} );
+			Monkey\Functions\when( 'register_activation_hook' )->alias( function () {} );
+			Monkey\Functions\when( 'register_deactivation_hook' )->alias( function () {} );
 
 			// Main plugin file constants if not already defined.
 			if ( ! defined( 'OPCACHE_TOOLKIT_PATH' ) ) {
@@ -177,7 +150,8 @@ namespace OPcacheToolkit\Tests\Unit {
 				define( 'OPCACHE_TOOLKIT_URL', 'http://example.com/wp-content/plugins/opcache-toolkit/' );
 			}
 			if ( ! defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) ) {
-				define( 'OPCACHE_TOOLKIT_IS_NETWORK', false );
+				$is_network = getenv( 'OPCACHE_TOOLKIT_TEST_MULTISITE' ) === 'true';
+				define( 'OPCACHE_TOOLKIT_IS_NETWORK', $is_network );
 			}
 			if ( ! defined( 'OPCACHE_TOOLKIT_VERSION' ) ) {
 				define( 'OPCACHE_TOOLKIT_VERSION', '1.0.0' );

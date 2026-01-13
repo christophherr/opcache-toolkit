@@ -11,11 +11,27 @@ use OPcacheToolkit\Tests\Unit\BaseTestCase;
 use OPcacheToolkit\Services\Profiler;
 use OPcacheToolkit\Plugin;
 use Mockery;
+use Brain\Monkey;
 
 /**
  * Class ProfilerTest
  */
 class ProfilerTest extends BaseTestCase {
+
+	/**
+	 * Set up the test.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+
+		if ( ! defined( 'OPCACHE_TOOLKIT_PATH' ) ) {
+			define( 'OPCACHE_TOOLKIT_PATH', dirname( __DIR__, 3 ) . DIRECTORY_SEPARATOR );
+		}
+
+		if ( ! function_exists( 'opcache_toolkit_user_can_manage_opcache' ) ) {
+			require_once OPCACHE_TOOLKIT_PATH . 'opcache-toolkit.php';
+		}
+	}
 
 	/**
 	 * Test start returns valid token.

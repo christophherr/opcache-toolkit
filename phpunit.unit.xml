@@ -17,6 +17,12 @@
         </testsuite>
     </testsuites>
 
+    <groups>
+        <exclude>
+            <group>multisite</group>
+        </exclude>
+    </groups>
+
     <coverage cacheDirectory=".phpunit.cache/code-coverage-unit"
               processUncoveredFiles="true">
         <include>
