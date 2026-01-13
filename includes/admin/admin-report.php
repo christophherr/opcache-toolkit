@@ -17,12 +17,52 @@ function opcache_toolkit_render_system_report(): void {
 	<div class="wrap">
 		<h1><?php esc_html_e( 'System Report', 'opcache-toolkit' ); ?></h1>
 		<p><?php esc_html_e( 'Copy and paste this report when requesting support.', 'opcache-toolkit' ); ?></p>
-		<textarea readonly style="width:100%;height:400px;font-family:monospace;"><?php echo esc_textarea( opcache_toolkit_generate_system_report() ); ?></textarea>
+		<textarea style="width: 35%; height:400px;" readonly style="width:100%;height:400px;font-family:monospace;"><?php echo esc_textarea( opcache_toolkit_generate_system_report() ); ?></textarea>
 		<p>
 			<button class="button button-primary" onclick="navigator.clipboard.writeText(this.parentElement.previousElementSibling.value).then(() => alert('<?php esc_attr_e( 'Copied to clipboard!', 'opcache-toolkit' ); ?>'))">
 				<?php esc_html_e( 'Copy to Clipboard', 'opcache-toolkit' ); ?>
 			</button>
 		</p>
+	</div>
+	<div class="wrap">
+		<h2><?php esc_html_e( 'Error Log', 'opcache-toolkit' ); ?></h2>
+		<?php
+		$logger   = \OPcacheToolkit\Plugin::logger();
+		$log_file = $logger->get_log_file( 'php' );
+		$fs       = $logger->get_filesystem();
+		$log_data = '';
+
+		if ( $fs && $fs->exists( $log_file ) ) {
+			$log_data = $fs->get_contents( $log_file );
+			// Show only last 500 lines if log is huge.
+			$lines = explode( "\n", $log_data );
+			if ( count( $lines ) > 500 ) {
+				$lines    = array_slice( $lines, -500 );
+				$log_data = implode( "\n", $lines );
+			}
+		} else {
+			$log_data = __( 'No log file found.', 'opcache-toolkit' );
+		}
+		?>
+		<textarea readonly style="width:100%;height:400px;font-family:monospace;background:#f0f0f1;"><?php echo esc_textarea( $log_data ); ?></textarea>
+
+		<div style="margin-top: 15px;">
+			<form method="post" action="<?php echo esc_url( opcache_toolkit_admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block;">
+				<?php wp_nonce_field( 'opcache_toolkit_download_log' ); ?>
+				<input type="hidden" name="action" value="opcache_toolkit_download_log">
+				<button type="submit" class="button button-secondary">
+					<?php esc_html_e( 'Download Log File', 'opcache-toolkit' ); ?>
+				</button>
+			</form>
+
+			<form method="post" action="<?php echo esc_url( opcache_toolkit_admin_url( 'admin-post.php' ) ); ?>" style="display:inline-block; margin-left: 10px;">
+				<?php wp_nonce_field( 'opcache_toolkit_delete_log' ); ?>
+				<input type="hidden" name="action" value="opcache_toolkit_delete_log">
+				<button type="submit" class="button button-link-delete" onclick="return confirm('<?php esc_attr_e( 'Are you sure you want to delete the log file?', 'opcache-toolkit' ); ?>')">
+					<?php esc_html_e( 'Delete Log File', 'opcache-toolkit' ); ?>
+				</button>
+			</form>
+		</div>
 	</div>
 	<?php
 }
@@ -69,3 +109,57 @@ function opcache_toolkit_generate_system_report(): string {
 
 	return implode( "\n", $report );
 }
+
+/**
+ * Handle Download Log File action.
+ *
+ * @return void
+ */
+add_action(
+	'admin_post_opcache_toolkit_download_log',
+	function () {
+		if ( ! opcache_toolkit_user_can_manage_opcache() ) {
+			wp_die( esc_html__( 'Access denied.', 'opcache-toolkit' ) );
+		}
+
+		check_admin_referer( 'opcache_toolkit_download_log' );
+
+		$logger   = \OPcacheToolkit\Plugin::logger();
+		$log_file = $logger->get_log_file( 'php' );
+		$fs       = $logger->get_filesystem();
+
+		if ( ! $fs || ! $fs->exists( $log_file ) ) {
+			wp_die( esc_html__( 'Log file not found.', 'opcache-toolkit' ) );
+		}
+
+		$content = $fs->get_contents( $log_file );
+
+		header( 'Content-Type: text/plain' );
+		header( 'Content-Disposition: attachment; filename="opcache-toolkit-plugin.log"' );
+		header( 'Content-Length: ' . strlen( $content ) );
+
+		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		exit;
+	}
+);
+
+/**
+ * Handle Delete Log File action.
+ *
+ * @return void
+ */
+add_action(
+	'admin_post_opcache_toolkit_delete_log',
+	function () {
+		if ( ! opcache_toolkit_user_can_manage_opcache() ) {
+			wp_die( esc_html__( 'Access denied.', 'opcache-toolkit' ) );
+		}
+
+		check_admin_referer( 'opcache_toolkit_delete_log' );
+
+		\OPcacheToolkit\Plugin::logger()->delete_log( 'php' );
+
+		wp_safe_redirect( opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit-report' ) );
+		exit;
+	}
+);

@@ -148,11 +148,46 @@ class Logger {
 	}
 
 	/**
+	 * Get the log directory path.
+	 *
+	 * @return string
+	 */
+	public function get_log_dir(): string {
+		return $this->log_dir;
+	}
+
+	/**
+	 * Get a log file path.
+	 *
+	 * @param string $source Log source (php or js).
+	 * @return string
+	 */
+	public function get_log_file( string $source = 'php' ): string {
+		$filename = ( 'js' === $source ) ? 'js.log' : 'plugin.log';
+		return $this->log_dir . '/' . $filename;
+	}
+
+	/**
+	 * Delete a log file.
+	 *
+	 * @param string $source Log source.
+	 * @return bool
+	 */
+	public function delete_log( string $source = 'php' ): bool {
+		$file          = $this->get_log_file( $source );
+		$wp_filesystem = $this->get_filesystem();
+		if ( $wp_filesystem && $wp_filesystem->exists( $file ) ) {
+			return $wp_filesystem->delete( $file );
+		}
+		return false;
+	}
+
+	/**
 	 * Get WordPress filesystem object.
 	 *
 	 * @return object|null
 	 */
-	private function get_filesystem(): ?object {
+	public function get_filesystem(): ?object {
 		global $wp_filesystem;
 
 		if ( empty( $wp_filesystem ) ) {
