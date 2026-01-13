@@ -108,6 +108,20 @@ function opcache_toolkit_get_setting( $key, $default_value = null ) {
 }
 
 /**
+ * Update Setting
+ *
+ * @param string $key   Option name.
+ * @param mixed  $value Value.
+ *
+ * @return bool
+ */
+function opcache_toolkit_update_setting( $key, $value ) {
+	return OPCACHE_TOOLKIT_IS_NETWORK
+		? update_site_option( $key, $value )
+		: update_option( $key, $value );
+}
+
+/**
  * Render settings page
  *
  * @return void

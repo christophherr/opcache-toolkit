@@ -68,15 +68,15 @@ register_activation_hook(
 		opcache_toolkit_schedule_retention_cleanup();
 
 		// Mark for redirect to wizard.
-		add_option( 'opcache_toolkit_show_wizard', true );
+		opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', true );
 	}
 );
 
 add_action(
 	'admin_init',
 	function () {
-		if ( get_option( 'opcache_toolkit_show_wizard' ) ) {
-			delete_option( 'opcache_toolkit_show_wizard' );
+		if ( opcache_toolkit_get_setting( 'opcache_toolkit_show_wizard' ) ) {
+			opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for redirection.
 			if ( ! isset( $_GET['activate-multi'] ) && opcache_toolkit_user_can_manage_opcache() ) {
 				wp_safe_redirect( admin_url( 'admin.php?page=opcache-toolkit-wizard' ) );

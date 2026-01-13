@@ -152,6 +152,7 @@ final class Plugin {
 			'admin/admin-report.php',
 			'admin/admin-settings.php',
 			'admin/admin-dashboard.php',
+			'admin/admin-wizard.php',
 			'admin/admin-bar.php',
 			'admin/dashboard-widget.php',
 			'core/cron.php',

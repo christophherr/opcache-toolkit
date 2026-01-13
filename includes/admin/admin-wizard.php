@@ -24,9 +24,9 @@ function opcache_toolkit_render_wizard_page() {
 		check_admin_referer( 'opcache_toolkit_setup' );
 
 		// Set default options.
-		update_option( 'opcache_toolkit_alert_threshold', 90 );
-		update_option( 'opcache_toolkit_retention_days', 30 );
-		update_option( 'opcache_toolkit_debug_mode', false );
+		opcache_toolkit_update_setting( 'opcache_toolkit_alert_threshold', 90 );
+		opcache_toolkit_update_setting( 'opcache_toolkit_retention_days', 30 );
+		opcache_toolkit_update_setting( 'opcache_toolkit_debug_mode', false );
 
 		// Auto-detect optimal settings.
 		$mem = \OPcacheToolkit\Plugin::opcache()->get_memory_usage();
@@ -34,7 +34,7 @@ function opcache_toolkit_render_wizard_page() {
 			// Example: if memory is very high, maybe adjust something (placeholder).
 		}
 
-		update_option( 'opcache_toolkit_setup_completed', true );
+		opcache_toolkit_update_setting( 'opcache_toolkit_setup_completed', true );
 
 		wp_safe_redirect( admin_url( 'admin.php?page=opcache-toolkit' ) );
 		exit;
