@@ -69,6 +69,23 @@ function opcache_toolkit_handle_daily_log() {
 }
 add_action( 'opcache_toolkit_daily_log', 'opcache_toolkit_handle_daily_log' );
 
+/**
+ * Log OPcache statistics if the last log was more than an hour ago.
+ *
+ * This helps populate the charts faster when a user is active.
+ *
+ * @return void
+ */
+function opcache_toolkit_maybe_log_stats() {
+	$last_log = (int) get_option( 'opcache_toolkit_last_log_time', 0 );
+	$now      = time();
+
+	// Log every hour if active.
+	if ( $now - $last_log > HOUR_IN_SECONDS ) {
+		opcache_toolkit_handle_daily_log();
+		update_option( 'opcache_toolkit_last_log_time', $now );
+	}
+}
 
 /**
  * Schedule the daily logging event.

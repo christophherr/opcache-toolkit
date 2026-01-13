@@ -73,7 +73,20 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		maintainAspectRatio: false,
 		animation: { duration: 800, easing: 'easeInOutQuart' },
 		scales: { y: { beginAtZero: true } },
-		plugins: { legend: { display: false } }
+		plugins: {
+			legend: { display: false },
+			zoom: {
+				zoom: {
+					wheel: { enabled: true },
+					pinch: { enabled: true },
+					mode: 'x'
+				},
+				pan: {
+					enabled: true,
+					mode: 'x'
+				}
+			}
+		}
 	};
 
 	const hitRateChart = new Chart(

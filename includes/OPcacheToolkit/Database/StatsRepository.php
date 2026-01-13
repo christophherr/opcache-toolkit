@@ -96,7 +96,7 @@ class StatsRepository {
 						$this->wpdb->prepare(
 							'SELECT recorded_at, hit_rate, cached_scripts, wasted_memory
 							 FROM %i
-							 ORDER BY recorded_at ASC
+							 ORDER BY recorded_at DESC
 							 LIMIT %d',
 							$this->table,
 							$limit
@@ -104,10 +104,10 @@ class StatsRepository {
 					);
 
 					if ( null === $results && ! empty( $this->wpdb->last_error ) ) {
-						throw new \Exception( esc_html( $this->wpdb->last_error ) );
+						throw new \Exception( esc_html__( $this->wpdb->last_error, 'opcache-toolkit' ) );
 					}
 
-					return $results;
+					return array_reverse( $results );
 				}
 			);
 

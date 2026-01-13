@@ -65,6 +65,9 @@ class StatsRepositoryTest extends BaseTestCase {
 
 		$this->wpdb->shouldReceive( 'prepare' )
 			->once()
+			->with( Mockery::on( function( $sql ) {
+				return str_contains( $sql, 'ORDER BY recorded_at DESC' );
+			} ), Mockery::any(), 180 )
 			->andReturn( 'MOCKED QUERY' );
 
 		$this->wpdb->shouldReceive( 'get_results' )

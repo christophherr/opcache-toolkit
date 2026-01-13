@@ -86,6 +86,9 @@ register_activation_hook(
  * Redirect to Setup Wizard on first run.
  */
 function opcache_toolkit_maybe_redirect_to_wizard() {
+	// Log a data point if needed.
+	opcache_toolkit_maybe_log_stats();
+
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check to avoid redirection loops during POST.
 	if ( isset( $_GET['page'] ) && 'opcache-toolkit-wizard' === $_GET['page'] ) {
 		return;
