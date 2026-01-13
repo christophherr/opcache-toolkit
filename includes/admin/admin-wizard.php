@@ -36,7 +36,9 @@ function opcache_toolkit_render_wizard_page() {
 
 		opcache_toolkit_update_setting( 'opcache_toolkit_setup_completed', true );
 
-		wp_safe_redirect( opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit' ) );
+		$redirect_url = opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit' );
+
+		wp_safe_redirect( $redirect_url );
 		if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
 			exit;
 		}

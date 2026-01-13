@@ -92,10 +92,16 @@ function opcache_toolkit_maybe_redirect_to_wizard() {
 			return;
 		}
 
-		opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for redirection.
-		if ( ! isset( $_GET['activate-multi'] ) && opcache_toolkit_user_can_manage_opcache() ) {
-			wp_safe_redirect( opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit-wizard' ) );
+		if ( isset( $_GET['activate-multi'] ) ) {
+			opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
+			return;
+		}
+
+		if ( opcache_toolkit_user_can_manage_opcache() ) {
+			$wizard_url = opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit-wizard' );
+			opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
+			wp_safe_redirect( $wizard_url );
 			if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
 				exit;
 			}
