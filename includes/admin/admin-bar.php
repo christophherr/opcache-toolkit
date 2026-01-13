@@ -23,7 +23,7 @@ add_action(
 				'id'    => 'opcache-toolkit-clear',
 				'title' => esc_html__( 'Clear OPcache', 'opcache-toolkit' ),
 				'href'  => wp_nonce_url(
-					admin_url( 'admin-post.php?action=opcache_toolkit_clear' ),
+					opcache_toolkit_admin_url( 'admin-post.php?action=opcache_toolkit_clear' ),
 					'opcache_toolkit_clear'
 				),
 				'meta'  => [ 'title' => esc_html__( 'Clear OPcache', 'opcache-toolkit' ) ],
@@ -36,7 +36,7 @@ add_action(
 				'id'    => 'opcache-toolkit-preload',
 				'title' => esc_html__( 'Run Preload', 'opcache-toolkit' ),
 				'href'  => wp_nonce_url(
-					admin_url( 'admin-post.php?action=opcache_toolkit_preload_now' ),
+					opcache_toolkit_admin_url( 'admin-post.php?action=opcache_toolkit_preload_now' ),
 					'opcache_toolkit_preload_now'
 				),
 				'meta'  => [ 'title' => esc_html__( 'Run Preload Now', 'opcache-toolkit' ) ],

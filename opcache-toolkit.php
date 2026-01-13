@@ -79,7 +79,7 @@ add_action(
 			opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for redirection.
 			if ( ! isset( $_GET['activate-multi'] ) && opcache_toolkit_user_can_manage_opcache() ) {
-				wp_safe_redirect( admin_url( 'admin.php?page=opcache-toolkit-wizard' ) );
+				wp_safe_redirect( opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit-wizard' ) );
 				exit;
 			}
 		}

@@ -36,7 +36,7 @@ function opcache_toolkit_render_wizard_page() {
 
 		opcache_toolkit_update_setting( 'opcache_toolkit_setup_completed', true );
 
-		wp_safe_redirect( admin_url( 'admin.php?page=opcache-toolkit' ) );
+		wp_safe_redirect( opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit' ) );
 		exit;
 	}
 
@@ -81,7 +81,7 @@ function opcache_toolkit_render_wizard_page() {
 			</form>
 
 			<p style="margin-top: 20px;">
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=opcache-toolkit' ) ); ?>" style="text-decoration: none; color: #646970;">
+				<a href="<?php echo esc_url( opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit' ) ); ?>" style="text-decoration: none; color: #646970;">
 					<?php esc_html_e( 'Skip for now', 'opcache-toolkit' ); ?>
 				</a>
 			</p>

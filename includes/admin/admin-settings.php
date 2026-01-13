@@ -122,6 +122,20 @@ function opcache_toolkit_update_setting( $key, $value ) {
 }
 
 /**
+ * Get Admin URL
+ *
+ * @param string $path URL path.
+ *
+ * @return string
+ */
+function opcache_toolkit_admin_url( $path = '' ) {
+	if ( OPCACHE_TOOLKIT_IS_NETWORK ) {
+		return network_admin_url( $path );
+	}
+	return admin_url( $path );
+}
+
+/**
  * Render settings page
  *
  * @return void
@@ -206,9 +220,10 @@ function opcache_toolkit_render_settings_page() {
 		<!-- GENERAL TAB -->
 		<section id="opcache-toolkit-tab-general" class="opcache-toolkit-tab active">
 			<?php if ( OPCACHE_TOOLKIT_IS_NETWORK ) : ?>
-				<form method="post" action="">
+				<form method="post" action="<?php echo esc_url( opcache_toolkit_admin_url( 'admin-post.php' ) ); ?>">
 					<?php wp_nonce_field( 'opcache_toolkit_network_settings' ); ?>
 					<input type="hidden" name="opcache_toolkit_save_network_settings" value="1">
+					<input type="hidden" name="action" value="opcache_toolkit_save_network_settings">
 			<?php else : ?>
 				<form method="post" action="options.php">
 					<?php settings_fields( 'opcache_toolkit_settings' ); ?>
@@ -304,7 +319,7 @@ function opcache_toolkit_render_settings_page() {
 				</tr>
 			</table>
 
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<form method="post" action="<?php echo esc_url( opcache_toolkit_admin_url( 'admin-post.php' ) ); ?>">
 				<input type="hidden" name="action" value="opcache_toolkit_preload">
 				<?php submit_button( esc_html__( 'Run Preload Now', 'opcache-toolkit' ) ); ?>
 			</form>
@@ -315,7 +330,7 @@ function opcache_toolkit_render_settings_page() {
 			<h2><?php esc_html_e( 'Advanced Tools', 'opcache-toolkit' ); ?></h2>
 
 			<h3><?php esc_html_e( 'Reset OPcache', 'opcache-toolkit' ); ?></h3>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<form method="post" action="<?php echo esc_url( opcache_toolkit_admin_url( 'admin-post.php' ) ); ?>">
 				<?php wp_nonce_field( 'opcache_toolkit_clear' ); ?>
 				<input type="hidden" name="action" value="opcache_toolkit_clear">
 				<?php submit_button( esc_html__( 'Reset OPcache Now', 'opcache-toolkit' ), 'delete' ); ?>
@@ -324,7 +339,7 @@ function opcache_toolkit_render_settings_page() {
 			<hr>
 
 			<h3><?php esc_html_e( 'Clear OPcache Statistics', 'opcache-toolkit' ); ?></h3>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<form method="post" action="<?php echo esc_url( opcache_toolkit_admin_url( 'admin-post.php' ) ); ?>">
 				<?php wp_nonce_field( 'opcache_toolkit_clear_stats' ); ?>
 				<input type="hidden" name="action" value="opcache_toolkit_clear_stats">
 				<?php submit_button( esc_html__( 'Clear Statistics', 'opcache-toolkit' ), 'delete' ); ?>
@@ -333,7 +348,7 @@ function opcache_toolkit_render_settings_page() {
 			<hr>
 
 			<h3><?php esc_html_e( 'Export OPcache Statistics', 'opcache-toolkit' ); ?></h3>
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<form method="post" action="<?php echo esc_url( opcache_toolkit_admin_url( 'admin-post.php' ) ); ?>">
 				<?php wp_nonce_field( 'opcache_toolkit_export_stats' ); ?>
 				<input type="hidden" name="action" value="opcache_toolkit_export_stats">
 				<?php submit_button( esc_html__( 'Download CSV', 'opcache-toolkit' ) ); ?>

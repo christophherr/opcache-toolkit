@@ -74,11 +74,11 @@ function opcache_toolkit_register_dashboard_widget() {
 					'healthEndpoint'  => rest_url( 'opcache-toolkit/v1/health' ),
 					'preloadEndpoint' => rest_url( 'opcache-toolkit/v1/preload-progress' ),
 					'resetUrl'        => wp_nonce_url(
-						admin_url( 'admin-post.php?action=opcache_toolkit_clear' ),
+						opcache_toolkit_admin_url( 'admin-post.php?action=opcache_toolkit_clear' ),
 						'opcache_toolkit_clear'
 					),
 					'nonce'           => wp_create_nonce( 'wp_rest' ),
-					'dashboardUrl'    => admin_url( 'admin.php?page=opcache-manager' ),
+					'dashboardUrl'    => opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit' ),
 				]
 			);
 		}

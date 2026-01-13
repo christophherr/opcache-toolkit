@@ -153,6 +153,17 @@ namespace OPcacheToolkit\Tests\Unit {
 					return true;
 				}
 			);
+			Monkey\Functions\when( 'get_site_option' )->alias(
+				function ( $n, $d = false ) use ( &$options ) {
+					return $options[ $n ] ?? $d;
+				}
+			);
+			Monkey\Functions\when( 'update_site_option' )->alias(
+				function ( $n, $v ) use ( &$options ) {
+					$options[ $n ] = $v;
+					return true;
+				}
+			);
 			Monkey\Functions\when( 'apply_filters' )->alias(
 				function ( $t, $v ) {
 					return $v;
@@ -197,6 +208,9 @@ namespace OPcacheToolkit\Tests\Unit {
 			} );
 			Monkey\Functions\when( 'admin_url' )->alias( function ( $p = '' ) {
 				return 'http://example.com/wp-admin/' . $p;
+			} );
+			Monkey\Functions\when( 'network_admin_url' )->alias( function ( $p = '' ) {
+				return 'http://example.com/network-admin/' . $p;
 			} );
 			Monkey\Functions\when( 'wp_nonce_field' )->justReturn( '' );
 			Monkey\Functions\when( 'wp_create_nonce' )->justReturn( 'mock-nonce' );
