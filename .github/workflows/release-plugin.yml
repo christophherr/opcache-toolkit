@@ -8,6 +8,9 @@ on:
 jobs:
   release:
     uses: christophherr/ch-actions/.github/workflows/release-plugin.yml@main
+    with:
+      php-version: "8.0"
+
     secrets:
       WP_UPLOADER_USERNAME: ${{ secrets.WP_UPLOADER_USERNAME }}
       WP_UPLOADER_PASSWORD: ${{ secrets.WP_UPLOADER_PASSWORD }}

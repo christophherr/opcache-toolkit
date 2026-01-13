@@ -11,3 +11,6 @@ on:
 jobs:
   tests:
     uses: christophherr/ch-actions/.github/workflows/test-plugin.yml@main
+    with:
+      php-version: "8.0"
+
