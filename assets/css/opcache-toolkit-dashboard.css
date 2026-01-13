@@ -11,13 +11,13 @@
 .opcache-toolkit-layout {
     width: 100%;
     margin-top: 20px;
-    overflow: hidden; /* contain floats */
 }
 
 /* Sidebar floats left */
 .opcache-toolkit-sidebar {
     float: left;
     width: 220px;
+	margin-top: 10px;
     margin-right: 30px;
 
     background: var(--opcache-toolkit-bg);

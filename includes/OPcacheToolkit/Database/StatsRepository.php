@@ -104,7 +104,7 @@ class StatsRepository {
 					);
 
 					if ( null === $results && ! empty( $this->wpdb->last_error ) ) {
-						throw new \Exception( esc_html__( $this->wpdb->last_error, 'opcache-toolkit' ) );
+						throw new \Exception( esc_html( $this->wpdb->last_error ) );
 					}
 
 					return array_reverse( $results );
