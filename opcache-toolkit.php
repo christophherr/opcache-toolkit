@@ -7,7 +7,7 @@
  * Contributor: christophherr
  * Author: Christoph Herr
  * Author URI: https://www.christophherr.com
- * Text Domain: opcache-manager
+ * Text Domain: opcache-toolkit
  * Domain Path: /languages
  * Requires at least: 6.9
  * Requires PHP: 8.0
