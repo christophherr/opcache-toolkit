@@ -223,3 +223,33 @@
     color: var(--opcache-toolkit-danger);
     font-weight: 600;
 }
+
+/* ------------------------------------------------------------------------
+   6. TOOLTIPS
+   ------------------------------------------------------------------------ */
+.opcache-toolkit-tooltip {
+    position: absolute;
+    display: none;
+    background: #32373c;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+    max-width: 200px;
+    text-align: center;
+    z-index: 100000;
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.opcache-toolkit-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #32373c transparent transparent transparent;
+}

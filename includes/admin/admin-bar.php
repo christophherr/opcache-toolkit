@@ -9,10 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/*
--------------------------------------------------------------------------
- * CLEAR OPCACHE BUTTON
- * ------------------------------------------------------------------------- */
 
 add_action(
 	'admin_bar_menu',
@@ -27,20 +23,20 @@ add_action(
 				'id'    => 'opcache-toolkit-clear',
 				'title' => esc_html__( 'Clear OPcache', 'opcache-toolkit' ),
 				'href'  => wp_nonce_url(
-					admin_url( 'admin-post.php?action=opcache_toolkit_clear' ),
+					opcache_toolkit_admin_url( 'admin-post.php?action=opcache_toolkit_clear' ),
 					'opcache_toolkit_clear'
 				),
 				'meta'  => [ 'title' => esc_html__( 'Clear OPcache', 'opcache-toolkit' ) ],
 			]
 		);
 
-		// Optional: Add preload button
+		// Optional: Add preload button.
 		$admin_bar->add_menu(
 			[
 				'id'    => 'opcache-toolkit-preload',
 				'title' => esc_html__( 'Run Preload', 'opcache-toolkit' ),
 				'href'  => wp_nonce_url(
-					admin_url( 'admin-post.php?action=opcache_toolkit_preload_now' ),
+					opcache_toolkit_admin_url( 'admin-post.php?action=opcache_toolkit_preload_now' ),
 					'opcache_toolkit_preload_now'
 				),
 				'meta'  => [ 'title' => esc_html__( 'Run Preload Now', 'opcache-toolkit' ) ],
@@ -49,11 +45,6 @@ add_action(
 	},
 	100
 );
-
-/*
--------------------------------------------------------------------------
- * HANDLE CLEAR OPCACHE
- * ------------------------------------------------------------------------- */
 
 add_action(
 	'admin_post_opcache_toolkit_clear',
@@ -69,15 +60,10 @@ add_action(
 			opcache_reset();
 		}
 
-		wp_redirect( wp_get_referer() );
+		wp_safe_redirect( wp_get_referer() );
 		exit;
 	}
 );
-
-/*
--------------------------------------------------------------------------
- * HANDLE PRELOAD NOW
- * ------------------------------------------------------------------------- */
 
 add_action(
 	'admin_post_opcache_toolkit_preload_now',
@@ -91,7 +77,7 @@ add_action(
 
 		opcache_toolkit_preload_now();
 
-		wp_redirect( wp_get_referer() );
+		wp_safe_redirect( wp_get_referer() );
 		exit;
 	}
 );

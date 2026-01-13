@@ -11,8 +11,6 @@
 	},
 	"globals": {
 		"ajaxurl": "readonly",
-		"eaEventsCalendar": "readonly",
-		"ea_calendar_admin": "readonly",
 		"wp": "readonly",
 		"HTMLElement": "readonly",
 		"customElements": "readonly"

@@ -27,12 +27,11 @@ add_action(
 			wp_die( esc_html__( 'Access denied.', 'opcache-toolkit' ) );
 		}
 
-		// Async path via Action Scheduler
 		if ( class_exists( 'ActionScheduler' ) ) {
 
 			opcache_toolkit_queue_preload();
 
-			wp_redirect(
+			wp_safe_redirect(
 				admin_url( 'options-general.php?page=opcache-manager&opcache_toolkit_notice=preload_queued' )
 			);
 			exit;
@@ -43,11 +42,9 @@ add_action(
 		opcache_toolkit_store_preload_report( $count );
 
 		// You might log this as well.
-		if ( function_exists( 'opcache_toolkit_log' ) ) {
-			opcache_toolkit_log( "Synchronous preload completed. Files compiled: {$count}" );
-		}
+		\OPcacheToolkit\Plugin::logger()->log( "Synchronous preload completed. Files compiled: {$count}" );
 
-		wp_redirect(
+		wp_safe_redirect(
 			admin_url( 'options-general.php?page=opcache-manager&opcache_toolkit_notice=preloaded' )
 		);
 		exit;

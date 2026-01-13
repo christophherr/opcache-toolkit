@@ -30,46 +30,42 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function opcache_toolkit_handle_daily_log() {
 
-	// OPcache unavailable
-	if ( ! function_exists( 'opcache_get_status' ) ) {
-		if ( function_exists( 'opcache_toolkit_log' ) ) {
-			opcache_toolkit_log( 'Daily log skipped: opcache_get_status() unavailable.' );
-		}
+	// OPcache unavailable.
+	if ( ! \OPcacheToolkit\Plugin::opcache()->is_enabled() ) {
+		\OPcacheToolkit\Plugin::logger()->log( 'Daily log skipped: OPcache unavailable.', 'warning' );
 		return;
 	}
 
-	$status = opcache_get_status( false );
+	$status = \OPcacheToolkit\Plugin::opcache()->get_status( false );
 
-	// Status retrieval failed
+	// Status retrieval failed.
 	if ( ! $status || ! isset( $status['opcache_statistics'], $status['memory_usage'] ) ) {
-		if ( function_exists( 'opcache_toolkit_log' ) ) {
-			opcache_toolkit_log( 'Daily log skipped: invalid OPcache status.' );
-		}
+		\OPcacheToolkit\Plugin::logger()->log( 'Daily log skipped: invalid OPcache status.', 'error' );
 		return;
 	}
 
 	$stats = $status['opcache_statistics'];
 	$mem   = $status['memory_usage'];
 
-	// Insert daily stats using unified helper
-	opcache_toolkit_insert_stats_row(
-		current_time( 'mysql' ),
-		$stats['opcache_hit_rate'],
-		$stats['num_cached_scripts'],
-		$mem['wasted_memory']
+	// Insert daily stats using repository.
+	\OPcacheToolkit\Plugin::stats()->insert(
+		[
+			'recorded_at'    => current_time( 'mysql' ),
+			'hit_rate'       => $stats['opcache_hit_rate'],
+			'cached_scripts' => $stats['num_cached_scripts'],
+			'wasted_memory'  => $mem['wasted_memory'],
+		]
 	);
 
-	// Run retention cleanup
+	// Run retention cleanup.
 	if ( function_exists( 'opcache_toolkit_cleanup_stats_retention' ) ) {
 		opcache_toolkit_cleanup_stats_retention();
 	}
 
-	// Trigger alert checks (hit rate only)
+	// Trigger alert checks (hit rate only).
 	do_action( 'opcache_toolkit_check_alerts', $stats['opcache_hit_rate'] );
 
-	if ( function_exists( 'opcache_toolkit_log' ) ) {
-		opcache_toolkit_log( 'Daily OPcache stats logged successfully.' );
-	}
+	\OPcacheToolkit\Plugin::logger()->log( 'Daily OPcache stats logged successfully.' );
 }
 add_action( 'opcache_toolkit_daily_log', 'opcache_toolkit_handle_daily_log' );
 
@@ -83,7 +79,7 @@ add_action( 'opcache_toolkit_daily_log', 'opcache_toolkit_handle_daily_log' );
  */
 function opcache_toolkit_schedule_daily_event() {
 
-	// Prefer Action Scheduler
+	// Prefer Action Scheduler.
 	if ( class_exists( 'ActionScheduler' ) ) {
 
 		if ( ! as_next_scheduled_action( 'opcache_toolkit_daily_log', [], 'opcache-toolkit' ) ) {
@@ -99,7 +95,7 @@ function opcache_toolkit_schedule_daily_event() {
 		return;
 	}
 
-	// Fallback: WP-Cron
+	// Fallback: WP-Cron.
 	if ( ! wp_next_scheduled( 'opcache_toolkit_daily_log' ) ) {
 		wp_schedule_event( time(), 'daily', 'opcache_toolkit_daily_log' );
 	}

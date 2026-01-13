@@ -7,3 +7,7 @@ composer.lock
 dev
 .junie
 .phpunit.result.cache
+.phpunit.cache
+coverage-*
+# Don't commit the default wp-scripts build dir
+/build/

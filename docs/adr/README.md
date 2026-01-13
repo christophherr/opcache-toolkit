@@ -63,6 +63,48 @@ An Architecture Decision Record captures an important architectural decision mad
 
 ---
 
+### [ADR-005: Strict Type Safety for PSR-4 Classes](./005-strict-type-safety.md)
+**Decision:** All new PSR-4 classes MUST use `declare(strict_types=1);` and full type hints.
+
+**Key Points:**
+- `declare(strict_types=1);` at top of every class file
+- Parameter types on all method arguments
+- Return types on all methods (including `void`)
+- Property types on all class properties
+- Procedural files remain untyped (backward compatibility)
+- Benefits: Runtime type checking, IDE autocomplete, self-documenting code
+
+**Status:** Proposed
+
+---
+
+### [ADR-006: Observability Strategy](./006-observability-strategy.md)
+**Decision:** Implement structured logging, debug mode toggle, and system diagnostics to improve troubleshooting and reduce support burden.
+
+**Key Points:**
+- **Structured Logging:** JSON-formatted logs with context via `Logger` service
+- **Debug Mode Toggle:** Enable verbose logging independent of `WP_DEBUG` (tentative)
+- **WP-CLI Doctor Command:** Automated health checks for CI/CD and self-diagnosis
+- **System Report Page:** Copy-paste environment, config, and plugin details for support
+- Logging disabled by default (zero overhead)
+
+**Status:** Accepted
+
+---
+
+### [ADR-007: Multi-Layered Testing Strategy](./007-multi-layered-testing-strategy.md)
+**Decision:** Implement a combination of Unit and Integration tests using Mockery, Brain\Monkey, and php-mock to ensure 100% testability of PSR-4 logic.
+
+**Key Points:**
+- **Unit Tests**: Isolated logic testing using mocks for external dependencies.
+- **Integration Tests**: WordPress-dependent testing for DB and API interactions.
+- **php-mock**: Mocking global PHP functions (`opcache_*`) via namespace interception.
+- **Service Wrappers**: Isolate environment-dependent code for clean testing.
+
+**Status:** Accepted
+
+---
+
 ## Decision Status
 
 - **Proposed** - Decision documented, not yet implemented

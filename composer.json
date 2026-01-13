@@ -1,6 +1,6 @@
 {
-	"name": "christophherr/opcahe-toolkit",
-	"description": "Events Calendar for LearnDash",
+	"name": "christophherr/opcache-toolkit",
+	"description": "OPcache Toolkit is the modern, real-time OPcache dashboard for WordPress — built for developers, safe for shared hosting, and powered by a full WP-CLI suite for automation.",
 	"license": "GPL-3.0-or-later",
 	"authors": [
 		{
@@ -10,6 +10,9 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
+	"require": {
+		"php": ">=8.0"
+	},
 	"require-dev": {
 		"phpcompatibility/phpcompatibility-wp": "^3.0.0@dev",
 		"phpcompatibility/php-compatibility": "^10.0.0@dev",
@@ -19,13 +22,20 @@
 		"phpunit/phpunit": "^9.6",
 		"yoast/phpunit-polyfills": "^2.0",
 		"brain/monkey": "^2.6",
-		"mockery/mockery": "^1.5"
+		"mockery/mockery": "^1.5",
+		"php-mock/php-mock-phpunit": "^2.6"
 	},
 	"scripts": {
 		"phpcs": "phpcs",
 		"phpcbf": "phpcbf",
-		"test:unit": "phpunit -c phpunit.unit.xml",
-		"test:integration": "phpunit -c phpunit.integration.xml",
+		"test:unit": "php -d xdebug.mode=off vendor/phpunit/phpunit/phpunit -c phpunit.unit.xml",
+		"test:integration": "php -d xdebug.mode=off vendor/phpunit/phpunit/phpunit -c phpunit.integration.xml",
+		"test:unit:coverage": "phpunit -c phpunit.unit.xml --coverage-clover coverage-unit.xml --coverage-html coverage-unit-html",
+		"test:integration:coverage": "phpunit -c phpunit.integration.xml --coverage-clover coverage-integration.xml --coverage-html coverage-integration-html",
+		"test:coverage": [
+			"@test:unit:coverage",
+			"@test:integration:coverage"
+		],
 		"test": [
 			"@test:unit",
 			"@test:integration"
@@ -39,7 +49,13 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"OPcacheToolkit\\": "includes/"
+			"OPcacheToolkit\\": "includes/OPcacheToolkit/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"OPcacheToolkit\\Tests\\Unit\\": "tests/phpunit/unit/",
+			"OPcacheToolkit\\Tests\\Integration\\": "tests/phpunit/integration/"
 		}
 	}
 }
