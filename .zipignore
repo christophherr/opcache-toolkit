@@ -27,6 +27,7 @@ webpack.config.js
 phpcs.xml
 phpunit.integration.xml
 phpunit.unit.xml
+.wp-env.json
 
 # Composer
 composer.json
