@@ -66,8 +66,10 @@ function opcache_toolkit_register_admin_menu() {
 	);
 
 	// Setup Wizard (Hidden from menu).
+	// We use 'options.php' as parent to register the page without showing it in our main menu.
+	// Using null causes PHP Deprecated warnings in some WordPress versions because it calls plugin_basename(null).
 	add_submenu_page(
-		null, // Hidden.
+		'options.php',
 		esc_html__( 'Setup Wizard', 'opcache-toolkit' ),
 		esc_html__( 'Setup Wizard', 'opcache-toolkit' ),
 		$cap,

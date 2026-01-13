@@ -92,4 +92,35 @@ class RedirectionTest extends WP_UnitTestCase {
 
 		unset( $_GET['activate-multi'] );
 	}
+
+	/**
+	 * Test wizard completion redirection.
+	 */
+	public function test_wizard_completion_redirect() {
+		$_POST['opcache_toolkit_setup_complete'] = '1';
+		$_REQUEST['_wpnonce'] = wp_create_nonce( 'opcache_toolkit_setup' );
+
+		$redirected = false;
+		add_filter( 'wp_redirect', function( $location ) use ( &$redirected ) {
+			$this->assertStringContainsString( 'page=opcache-toolkit', $location );
+			$this->assertStringNotContainsString( 'page=opcache-toolkit-wizard', $location );
+			$redirected = true;
+			return false;
+		} );
+
+		// Load the wizard file to ensure the function exists
+		if ( ! function_exists( 'opcache_toolkit_render_wizard_page' ) ) {
+			require_once dirname( __DIR__, 3 ) . '/includes/admin/admin-wizard.php';
+		}
+
+		ob_start();
+		opcache_toolkit_render_wizard_page();
+		ob_end_clean();
+
+		$this->assertTrue( $redirected, 'Redirection did not happen.' );
+		$this->assertTrue( (bool) get_option( 'opcache_toolkit_setup_completed' ) );
+
+		unset( $_POST['opcache_toolkit_setup_complete'] );
+		unset( $_REQUEST['_wpnonce'] );
+	}
 }

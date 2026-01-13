@@ -10,33 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-if ( OPCACHE_TOOLKIT_IS_NETWORK ) {
-	add_action(
-		'network_admin_menu',
-		function () {
-			add_menu_page(
-				esc_html__( 'OPcache Toolkit', 'opcache-toolkit' ),
-				esc_html__( 'OPcache Toolkit', 'opcache-toolkit' ),
-				'manage_network',
-				'opcache-manager',
-				'opcache_toolkit_render_settings_page'
-			);
-		}
-	);
-} else {
-	add_action(
-		'admin_menu',
-		function () {
-			add_options_page(
-				esc_html__( 'OPcache Toolkit', 'opcache-toolkit' ),
-				esc_html__( 'OPcache Toolkit', 'opcache-toolkit' ),
-				'manage_options',
-				'opcache-manager',
-				'opcache_toolkit_render_settings_page'
-			);
-		}
-	);
-}
 
 add_action(
 	'admin_init',
