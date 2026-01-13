@@ -39,17 +39,21 @@ class RedirectionTest extends WP_UnitTestCase {
 		update_option( 'opcache_toolkit_show_wizard', true );
 		update_option( 'opcache_toolkit_setup_completed', false );
 
-		add_filter( 'wp_redirect', function( $location ) {
+		$redirected = false;
+		add_filter( 'wp_redirect', function( $location ) use ( &$redirected ) {
 			$this->assertStringContainsString( 'page=opcache-toolkit-wizard', $location );
+			$redirected = true;
 			return false; // Cancel redirect
 		} );
 
 		// Trigger the action
-		// We use a try-catch to avoid PHPUnit exiting if opcache_toolkit_maybe_redirect_to_wizard calls exit
-		try {
-			opcache_toolkit_maybe_redirect_to_wizard();
-		} catch ( \Exception $e ) {
-			// Catch potential exit exception if any runner uses it
+		ob_start();
+		opcache_toolkit_maybe_redirect_to_wizard();
+		$output = ob_get_clean();
+
+		if ( ! $redirected ) {
+			$this->assertStringContainsString( 'http-equiv="refresh"', $output );
+			$this->assertStringContainsString( 'page=opcache-toolkit-wizard', $output );
 		}
 
 		// Verify show_wizard was cleared
@@ -67,7 +71,11 @@ class RedirectionTest extends WP_UnitTestCase {
 			$this->fail( 'Redirect should not have happened: ' . $location );
 		} );
 
+		ob_start();
 		opcache_toolkit_maybe_redirect_to_wizard();
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output );
 
 		// Verify show_wizard was cleared anyway
 		$this->assertFalse( (bool) get_option( 'opcache_toolkit_show_wizard' ) );
@@ -85,7 +93,11 @@ class RedirectionTest extends WP_UnitTestCase {
 			$this->fail( 'Redirect should not have happened: ' . $location );
 		} );
 
+		ob_start();
 		opcache_toolkit_maybe_redirect_to_wizard();
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output );
 
 		// Verify show_wizard was cleared anyway
 		$this->assertFalse( (bool) get_option( 'opcache_toolkit_show_wizard' ) );
@@ -97,6 +109,7 @@ class RedirectionTest extends WP_UnitTestCase {
 	 * Test wizard completion redirection.
 	 */
 	public function test_wizard_completion_redirect() {
+		$_GET['page'] = 'opcache-toolkit-wizard';
 		$_POST['opcache_toolkit_setup_complete'] = '1';
 		$_REQUEST['_wpnonce'] = wp_create_nonce( 'opcache_toolkit_setup' );
 
@@ -115,11 +128,17 @@ class RedirectionTest extends WP_UnitTestCase {
 
 		ob_start();
 		opcache_toolkit_render_wizard_page();
-		ob_end_clean();
+		$output = ob_get_clean();
 
-		$this->assertTrue( $redirected, 'Redirection did not happen.' );
+		if ( ! $redirected ) {
+			$this->assertStringContainsString( 'http-equiv="refresh"', $output );
+			$this->assertStringContainsString( 'page=opcache-toolkit', $output );
+		}
+
 		$this->assertTrue( (bool) get_option( 'opcache_toolkit_setup_completed' ) );
+		$this->assertFalse( (bool) get_option( 'opcache_toolkit_show_wizard' ) );
 
+		unset( $_GET['page'] );
 		unset( $_POST['opcache_toolkit_setup_complete'] );
 		unset( $_REQUEST['_wpnonce'] );
 	}

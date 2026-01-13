@@ -28,19 +28,22 @@ function opcache_toolkit_render_wizard_page() {
 		opcache_toolkit_update_setting( 'opcache_toolkit_retention_days', 30 );
 		opcache_toolkit_update_setting( 'opcache_toolkit_debug_mode', false );
 
-		// Auto-detect optimal settings.
-		$mem = \OPcacheToolkit\Plugin::opcache()->get_memory_usage();
-		if ( isset( $mem['total_memory'] ) && $mem['total_memory'] > 0 ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf -- Placeholder for potential future enhancement.
-			// Example: if memory is very high, maybe adjust something (placeholder).
-		}
-
 		opcache_toolkit_update_setting( 'opcache_toolkit_setup_completed', true );
+		opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
 
 		$redirect_url = opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit' );
 
-		wp_safe_redirect( $redirect_url );
-		if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
-			exit;
+		if ( ! headers_sent() ) {
+			wp_safe_redirect( $redirect_url );
+			if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
+				exit;
+			}
+		} else {
+			// Fallback if headers are already sent.
+			printf( '<meta http-equiv="refresh" content="0;url=%s">', esc_url( $redirect_url ) );
+			if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
+				exit;
+			}
 		}
 	}
 

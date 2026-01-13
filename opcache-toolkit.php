@@ -86,6 +86,11 @@ register_activation_hook(
  * Redirect to Setup Wizard on first run.
  */
 function opcache_toolkit_maybe_redirect_to_wizard() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check to avoid redirection loops during POST.
+	if ( isset( $_GET['page'] ) && 'opcache-toolkit-wizard' === $_GET['page'] ) {
+		return;
+	}
+
 	if ( opcache_toolkit_get_setting( 'opcache_toolkit_show_wizard' ) ) {
 		if ( opcache_toolkit_get_setting( 'opcache_toolkit_setup_completed' ) ) {
 			opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
@@ -101,9 +106,17 @@ function opcache_toolkit_maybe_redirect_to_wizard() {
 		if ( opcache_toolkit_user_can_manage_opcache() ) {
 			$wizard_url = opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit-wizard' );
 			opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
-			wp_safe_redirect( $wizard_url );
-			if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
-				exit;
+			if ( ! headers_sent() ) {
+				wp_safe_redirect( $wizard_url );
+				if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
+					exit;
+				}
+			} else {
+				// Fallback if headers are already sent.
+				printf( '<meta http-equiv="refresh" content="0;url=%s">', esc_url( $wizard_url ) );
+				if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
+					exit;
+				}
 			}
 		}
 	}
