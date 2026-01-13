@@ -56,16 +56,16 @@ function opcache_toolkit_install_schema() {
 
 	// Keep this in sync with any future schema changes.
 	$sql = "
-        CREATE TABLE {$table} (
-            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-            recorded_at DATETIME NOT NULL,
-            hit_rate FLOAT NOT NULL,
-            cached_scripts BIGINT(20) UNSIGNED NOT NULL,
-            wasted_memory BIGINT(20) UNSIGNED NOT NULL,
-            PRIMARY KEY  (id),
-            KEY recorded_at (recorded_at)
-        ) {$charset_collate};
-    ";
+	CREATE TABLE {$table} (
+		id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+		recorded_at DATETIME NOT NULL,
+		hit_rate FLOAT NOT NULL,
+		cached_scripts BIGINT(20) UNSIGNED NOT NULL,
+		wasted_memory BIGINT(20) UNSIGNED NOT NULL,
+		PRIMARY KEY  (id),
+		KEY recorded_at (recorded_at)
+	) {$charset_collate};
+";
 
 	dbDelta( $sql );
 }
@@ -78,10 +78,6 @@ function opcache_toolkit_install_schema() {
  * @return void
  */
 function opcache_toolkit_cleanup_stats_retention() {
-	if ( ! function_exists( 'opcache_toolkit_get_setting' ) ) {
-		return;
-	}
-
 	$days = (int) opcache_toolkit_get_setting( 'opcache_toolkit_retention_days', 90 );
 	if ( $days < 1 ) {
 		$days = 1;

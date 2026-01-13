@@ -24,11 +24,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Define plugin paths.
  */
-define( 'OPCACHE_TOOLKIT_FILE', __FILE__ );
-define( 'OPCACHE_TOOLKIT_PATH', plugin_dir_path( __FILE__ ) );
-define( 'OPCACHE_TOOLKIT_URL', plugin_dir_url( __FILE__ ) );
-define( 'OPCACHE_TOOLKIT_IS_NETWORK', is_multisite() );
-define( 'OPCACHE_TOOLKIT_VERSION', '1.0.0' );
+if ( ! defined( 'OPCACHE_TOOLKIT_FILE' ) ) {
+	define( 'OPCACHE_TOOLKIT_FILE', __FILE__ );
+}
+if ( ! defined( 'OPCACHE_TOOLKIT_PATH' ) ) {
+	define( 'OPCACHE_TOOLKIT_PATH', plugin_dir_path( __FILE__ ) );
+}
+if ( ! defined( 'OPCACHE_TOOLKIT_URL' ) ) {
+	define( 'OPCACHE_TOOLKIT_URL', plugin_dir_url( __FILE__ ) );
+}
+if ( ! defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) ) {
+	define( 'OPCACHE_TOOLKIT_IS_NETWORK', is_multisite() );
+}
+if ( ! defined( 'OPCACHE_TOOLKIT_VERSION' ) ) {
+	define( 'OPCACHE_TOOLKIT_VERSION', '1.0.0' );
+}
 
 /**
  * Load plugin text domain for translations.
@@ -72,19 +82,27 @@ register_activation_hook(
 	}
 );
 
-add_action(
-	'admin_init',
-	function () {
-		if ( opcache_toolkit_get_setting( 'opcache_toolkit_show_wizard' ) ) {
+/**
+ * Redirect to Setup Wizard on first run.
+ */
+function opcache_toolkit_maybe_redirect_to_wizard() {
+	if ( opcache_toolkit_get_setting( 'opcache_toolkit_show_wizard' ) ) {
+		if ( opcache_toolkit_get_setting( 'opcache_toolkit_setup_completed' ) ) {
 			opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for redirection.
-			if ( ! isset( $_GET['activate-multi'] ) && opcache_toolkit_user_can_manage_opcache() ) {
-				wp_safe_redirect( opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit-wizard' ) );
+			return;
+		}
+
+		opcache_toolkit_update_setting( 'opcache_toolkit_show_wizard', false );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check for redirection.
+		if ( ! isset( $_GET['activate-multi'] ) && opcache_toolkit_user_can_manage_opcache() ) {
+			wp_safe_redirect( opcache_toolkit_admin_url( 'admin.php?page=opcache-toolkit-wizard' ) );
+			if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
 				exit;
 			}
 		}
 	}
-);
+}
+add_action( 'admin_init', 'opcache_toolkit_maybe_redirect_to_wizard' );
 
 register_deactivation_hook(
 	__FILE__,

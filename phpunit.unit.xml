@@ -21,6 +21,7 @@
               processUncoveredFiles="true">
         <include>
             <directory suffix=".php">includes/OPcacheToolkit</directory>
+            <file>opcache-toolkit.php</file>
         </include>
     </coverage>
 </phpunit>

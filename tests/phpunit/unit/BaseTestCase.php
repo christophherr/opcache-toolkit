@@ -54,6 +54,11 @@ namespace OPcacheToolkit\Tests\Unit {
 
 			Monkey\tearDown();
 			Mockery::close();
+
+			// Clean up globals.
+			global $wpdb;
+			$wpdb = null;
+
 			parent::tearDown();
 		}
 
@@ -116,6 +121,67 @@ namespace OPcacheToolkit\Tests\Unit {
 		private function setupEssentials(): void {
 			$options = &$this->options;
 			$cache   = &$this->cache;
+
+			Monkey\Functions\when( 'add_action' )->alias( function () {} );
+			Monkey\Functions\when( 'add_filter' )->alias( function () {} );
+			Monkey\Functions\when( 'plugin_dir_path' )->alias(
+				function ( $v ) {
+					return dirname( $v ) . DIRECTORY_SEPARATOR;
+				}
+			);
+			Monkey\Functions\when( 'plugin_dir_url' )->alias(
+				function ( $v ) {
+					return 'http://example.com/wp-content/plugins/' . basename( dirname( $v ) ) . '/';
+				}
+			);
+			Monkey\Functions\when( 'is_multisite' )->justReturn( false );
+			Monkey\Functions\when( 'wp_safe_redirect' )->alias( function () {} );
+			Monkey\Functions\when( 'opcache_toolkit_install_schema' )->alias( function () {} );
+			Monkey\Functions\when( 'opcache_toolkit_schedule_daily_event' )->alias( function () {} );
+			Monkey\Functions\when( 'opcache_toolkit_schedule_retention_cleanup' )->alias( function () {} );
+			Monkey\Functions\when( 'opcache_toolkit_get_setting' )->alias(
+				function ( $n, $d = false ) use ( &$options ) {
+					return $options[ $n ] ?? $d;
+				}
+			);
+			Monkey\Functions\when( 'opcache_toolkit_update_setting' )->alias(
+				function ( $n, $v ) use ( &$options ) {
+					$options[ $n ] = $v;
+					return true;
+				}
+			);
+			Monkey\Functions\when( 'opcache_toolkit_admin_url' )->alias( function ( $p = '' ) {
+				if ( defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) && OPCACHE_TOOLKIT_IS_NETWORK ) {
+					return 'http://example.com/network-admin/' . $p;
+				}
+				return 'http://example.com/wp-admin/' . $p;
+			} );
+			Monkey\Functions\when( 'opcache_toolkit_user_can_manage_opcache' )->alias(
+				function() {
+					if ( is_multisite() ) {
+						return current_user_can( 'manage_network' );
+					}
+					return current_user_can( 'manage_options' );
+				}
+			);
+			Monkey\Functions\when( 'opcache_toolkit_check_schema' )->alias( function () {} );
+
+			// Main plugin file constants if not already defined.
+			if ( ! defined( 'OPCACHE_TOOLKIT_PATH' ) ) {
+				define( 'OPCACHE_TOOLKIT_PATH', dirname( __DIR__, 3 ) . DIRECTORY_SEPARATOR );
+			}
+			if ( ! defined( 'OPCACHE_TOOLKIT_FILE' ) ) {
+				define( 'OPCACHE_TOOLKIT_FILE', OPCACHE_TOOLKIT_PATH . 'opcache-toolkit.php' );
+			}
+			if ( ! defined( 'OPCACHE_TOOLKIT_URL' ) ) {
+				define( 'OPCACHE_TOOLKIT_URL', 'http://example.com/wp-content/plugins/opcache-toolkit/' );
+			}
+			if ( ! defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) ) {
+				define( 'OPCACHE_TOOLKIT_IS_NETWORK', false );
+			}
+			if ( ! defined( 'OPCACHE_TOOLKIT_VERSION' ) ) {
+				define( 'OPCACHE_TOOLKIT_VERSION', '1.0.0' );
+			}
 
 			Monkey\Functions\when( 'is_wp_error' )->alias(
 				function ( $v ) {
@@ -204,7 +270,7 @@ namespace OPcacheToolkit\Tests\Unit {
 			Monkey\Functions\when( 'get_current_user_id' )->justReturn( 1 );
 			Monkey\Functions\when( 'current_user_can' )->justReturn( true );
 			Monkey\Functions\when( 'wp_die' )->alias( function ( $m ) {
-				throw new \Exception( $m );
+				throw new \Exception( (string) $m );
 			} );
 			Monkey\Functions\when( 'admin_url' )->alias( function ( $p = '' ) {
 				return 'http://example.com/wp-admin/' . $p;

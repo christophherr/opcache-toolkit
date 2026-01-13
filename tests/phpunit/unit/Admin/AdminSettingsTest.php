@@ -19,14 +19,10 @@ class AdminSettingsTest extends BaseTestCase {
 	 * Set up the test.
 	 */
 	protected function setUp(): void {
-		if ( ! defined( 'OPCACHE_TOOLKIT_IS_NETWORK' ) ) {
-			define( 'OPCACHE_TOOLKIT_IS_NETWORK', false );
-		}
 		parent::setUp();
-		if ( ! defined( 'OPCACHE_TOOLKIT_PATH' ) ) {
-			define( 'OPCACHE_TOOLKIT_PATH', realpath( __DIR__ . '/../../../../' ) . DIRECTORY_SEPARATOR );
+		if ( ! function_exists( 'opcache_toolkit_get_setting' ) ) {
+			require_once __DIR__ . '/../../../../includes/admin/admin-settings.php';
 		}
-		require_once OPCACHE_TOOLKIT_PATH . 'includes/admin/admin-settings.php';
 	}
 
 	/**
