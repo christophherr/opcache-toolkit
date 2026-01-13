@@ -132,6 +132,11 @@ namespace OPcacheToolkit\Tests\Unit {
 					return $v;
 				}
 			);
+			Monkey\Functions\when( 'esc_html__' )->alias(
+				function ( $v ) {
+					return $v;
+				}
+			);
 			Monkey\Functions\when( 'wp_json_encode' )->alias(
 				function ( $v ) {
 					return json_encode( $v );

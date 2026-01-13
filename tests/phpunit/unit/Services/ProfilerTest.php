@@ -41,7 +41,7 @@ class ProfilerTest extends BaseTestCase {
 			Mockery::on( function( $context ) {
 				return isset( $context['ms'] ) && isset( $context['success'] ) && $context['success'] === true;
 			} ),
-			'php'
+			'Perf'
 		);
 
 		// Inject into Plugin singleton
@@ -71,7 +71,7 @@ class ProfilerTest extends BaseTestCase {
 			Mockery::on( function( $context ) {
 				return isset( $context['success'] ) && $context['success'] === false && $context['error'] === 'Oops';
 			} ),
-			'php'
+			'Perf'
 		);
 
 		// Inject into Plugin singleton

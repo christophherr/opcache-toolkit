@@ -32,7 +32,7 @@ class Commands {
 	 */
 	private function maybe_json( $data, array $assoc_args ): bool {
 		if ( isset( $assoc_args['json'] ) && $assoc_args['json'] ) {
-			WP_CLI::log( wp_json_encode( $data ) );
+			WP_CLI::log( \wp_json_encode( $data ) );
 			return true;
 		}
 		return false;
@@ -46,7 +46,7 @@ class Commands {
 	 */
 	private function ensure_opcache_available(): void {
 		if ( ! Plugin::opcache()->is_enabled() ) {
-			WP_CLI::error( esc_html__( 'OPcache is not loaded or enabled on this server.', 'opcache-toolkit' ) );
+			WP_CLI::error( \esc_html__( 'OPcache is not loaded or enabled on this server.', 'opcache-toolkit' ) );
 		}
 	}
 
@@ -88,8 +88,8 @@ class Commands {
 
 		WP_CLI::line( 'OPcache Status: Enabled' );
 		WP_CLI::line( 'Cached Scripts: ' . $data['scripts'] );
-		WP_CLI::line( 'Hit Rate: ' . round( $data['hit_rate'], 2 ) . '%' );
-		WP_CLI::line( 'Memory Used: ' . size_format( $data['memory_usage']['used_memory'] ) );
+		WP_CLI::line( 'Hit Rate: ' . \round( $data['hit_rate'], 2 ) . '%' );
+		WP_CLI::line( 'Memory Used: ' . \size_format( $data['memory_usage']['used_memory'] ) );
 	}
 
 	/**
@@ -139,7 +139,7 @@ class Commands {
 		$this->ensure_opcache_available();
 
 		if ( empty( $args ) ) {
-			WP_CLI::error( esc_html__( 'Please specify at least one directory to preload.', 'opcache-toolkit' ) );
+			WP_CLI::error( \esc_html__( 'Please specify at least one directory to preload.', 'opcache-toolkit' ) );
 		}
 
 		$command = new PreloadCommand( Plugin::opcache() );
@@ -164,21 +164,21 @@ class Commands {
 	 * @return void
 	 */
 	public function doctor( array $args, array $assoc_args ): void {
-		WP_CLI::line( esc_html__( 'Running diagnostics...', 'opcache-toolkit' ) );
+		WP_CLI::line( \esc_html__( 'Running diagnostics...', 'opcache-toolkit' ) );
 
 		$status = Plugin::opcache()->get_status();
 
 		$checks = [
 			'PHP Version'     => PHP_VERSION,
-			'WP Version'      => get_bloginfo( 'version' ),
+			'WP Version'      => \get_bloginfo( 'version' ),
 			'Plugin Version'  => OPCACHE_TOOLKIT_VERSION,
-			'OPcache Enabled' => extension_loaded( 'Zend OPcache' ) ? '✓ Yes' : '✗ No',
-			'OPcache Memory'  => ini_get( 'opcache.memory_consumption' ) . 'MB',
-			'Hit Rate'        => number_format( Plugin::opcache()->get_hit_rate(), 2 ) . '%',
+			'OPcache Enabled' => \extension_loaded( 'Zend OPcache' ) ? '✓ Yes' : '✗ No',
+			'OPcache Memory'  => \ini_get( 'opcache.memory_consumption' ) . 'MB',
+			'Hit Rate'        => \number_format( Plugin::opcache()->get_hit_rate(), 2 ) . '%',
 			'Cached Scripts'  => $status['opcache_statistics']['num_cached_scripts'] ?? 0,
-			'DB Schema'       => opcache_toolkit_check_schema() ? '✓ OK' : '✗ Missing',
-			'Cron Jobs'       => wp_next_scheduled( 'opcache_toolkit_daily_log' ) ? '✓ Scheduled' : '✗ Missing',
-			'Debug Mode'      => get_option( 'opcache_toolkit_debug_mode' ) ? 'Enabled' : 'Disabled',
+			'DB Schema'       => \opcache_toolkit_check_schema() ? '✓ OK' : '✗ Missing',
+			'Cron Jobs'       => \wp_next_scheduled( 'opcache_toolkit_daily_log' ) ? '✓ Scheduled' : '✗ Missing',
+			'Debug Mode'      => \get_option( 'opcache_toolkit_debug_mode' ) ? 'Enabled' : 'Disabled',
 		];
 
 		$table_data = [];
@@ -190,6 +190,6 @@ class Commands {
 		}
 
 		format_items( 'table', $table_data, [ 'check', 'result' ] );
-		WP_CLI::success( __( 'Diagnostics complete', 'opcache-toolkit' ) );
+		WP_CLI::success( \__( 'Diagnostics complete', 'opcache-toolkit' ) );
 	}
 }

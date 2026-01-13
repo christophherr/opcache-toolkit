@@ -91,6 +91,8 @@ class CommandsTest extends BaseTestCase {
 		Monkey\Functions\expect( 'wp_next_scheduled' )->andReturn( true );
 
 		// Mock check_schema
+		Monkey\Functions\expect( 'opcache_toolkit_check_schema' )->andReturn( true );
+
 		$this->wpdb->shouldReceive( 'prepare' )->andReturn( 'QUERY' );
 		$this->wpdb->shouldReceive( 'get_var' )->andReturn( 'wp_opcache_toolkit_stats' );
 

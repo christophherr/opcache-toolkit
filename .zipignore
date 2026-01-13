@@ -1,21 +1,34 @@
-# Development & tooling
+# Development & tooling - Folders need both patterns to ensure complete ignore
+.github/**
 .github/
+.git/**
+.git/
+node_modules/**
 node_modules/
+vendor/**
 vendor/
+src/**
 src/
+tests/**
 tests/
 
-.editorconfig
+# Ignore files
+.zipignore
 .eslintignore
-.eslintrc.json
 .gitattributes
 .gitignore
 .prettierignore
-.prettierrc
+
 
 # Build / tooling configs
+.editorconfig
+.eslintrc.json
+.prettierrc
 babel.config.js
 webpack.config.js
+phpcs.xml
+phpunit.integration.xml
+phpunit.unit.xml
 
 # Composer
 composer.json
@@ -27,8 +40,3 @@ package-lock.json
 
 # Jest / JS tooling
 jest.config.js
-
-# PHP QA configs
-phpcs.xml
-phpunit.integration.xml
-phpunit.unit.xml
