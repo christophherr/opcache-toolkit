@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; }
 
 ?>
-<h2><?php esc_html_e( 'OPcache Performance Charts', 'opcache-toolkit' ); ?></h2>
 
 <div style="max-width: 900px; margin-top: 30px;" data-opcache-tooltip="<?php esc_attr_e( 'Historical hit rate trend. Stable high rate is ideal.', 'opcache-toolkit' ); ?>">
 	<canvas id="opcacheToolkitHitRateChart" height="120"></canvas>

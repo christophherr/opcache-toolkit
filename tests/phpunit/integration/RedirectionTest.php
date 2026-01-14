@@ -47,6 +47,11 @@ class RedirectionTest extends WP_UnitTestCase {
 		} );
 
 		// Trigger the action
+		$output = '';
+		if ( ob_get_level() > 0 ) {
+			// If we're already buffering, we need to be careful
+		}
+
 		ob_start();
 		opcache_toolkit_maybe_redirect_to_wizard();
 		$output = ob_get_clean();

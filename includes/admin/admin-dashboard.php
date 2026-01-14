@@ -112,12 +112,40 @@ add_action(
 			filemtime( OPCACHE_TOOLKIT_PATH . 'assets/css/opcache-toolkit-dashboard.css' )
 		);
 
-		// Inline JS to init postboxes on this screen.
+ 	// Inline JS to init postboxes on this screen.
 		wp_add_inline_script(
 			'postbox',
 			"jQuery(document).ready(function($){
-            postboxes.add_postbox_toggles('toplevel_page_opcache-toolkit');
-        });"
+                // Initialize postboxes for the dashboard screen.
+                postboxes.add_postbox_toggles('toplevel_page_opcache-toolkit');
+
+                // Resilient toggle handler for meta boxes.
+                // We target only the header and use e.stopImmediatePropagation() to prevent double firing.
+                $(document).on('click', '.postbox .postbox-header', function(e) {
+                    // Ignore clicks on buttons or links inside the header.
+                    if ($(e.target).filter('button, a, input, select, textarea').length > 0) {
+                        return;
+                    }
+
+                    e.stopImmediatePropagation();
+
+                    const postbox = $(this).closest('.postbox');
+                    const isClosed = postbox.hasClass('closed');
+
+                    if (isClosed) {
+                        postbox.removeClass('closed');
+                        postbox.find('.handlediv').attr('aria-expanded', 'true');
+                    } else {
+                        postbox.addClass('closed');
+                        postbox.find('.handlediv').attr('aria-expanded', 'false');
+                    }
+
+                    // Manually trigger save state.
+                    postboxes.save_state('toplevel_page_opcache-toolkit');
+
+                    return false;
+                });
+            });"
 		);
 	}
 );
@@ -236,15 +264,14 @@ function opcache_toolkit_render_dashboard_page() {
 		wp_die( esc_html__( 'Access denied.', 'opcache-toolkit' ) );
 	}
 
+	// We must register the postboxes to ensure their state can be saved.
 	// phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores, WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 	do_action( 'add_meta_boxes_toplevel_page_opcache-toolkit', null );
 
 	?>
 
-	<div class="wrap">
+	<div class="wrap" id="opcache-toolkit-dashboard">
 	<h1><?php esc_html_e( 'OPcache Toolkit Dashboard', 'opcache-toolkit' ); ?></h1>
-	<?php wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false ); ?>
-
 	<div class="opcache-toolkit-layout">
 
 		<!-- Sidebar navigation -->
@@ -260,16 +287,20 @@ function opcache_toolkit_render_dashboard_page() {
 
 		<!-- Main content -->
 		<main class="opcache-toolkit-main">
-			<div id="poststuff">
-				<div id="post-body" class="metabox-holder columns-2">
-					<div id="postbox-container-1" class="postbox-container">
-						<?php do_meta_boxes( 'toplevel_page_opcache-toolkit', 'normal', null ); ?>
-					</div>
-					<div id="postbox-container-2" class="postbox-container">
-						<?php do_meta_boxes( 'toplevel_page_opcache-toolkit', 'side', null ); ?>
-					</div>
-				</div>
+	<div id="poststuff">
+		<div id="post-body" class="metabox-holder columns-2">
+			<div id="postbox-container-1" class="postbox-container">
+				<form method="post" action="">
+					<?php wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce' ); ?>
+					<?php wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce' ); ?>
+				</form>
+				<?php do_meta_boxes( 'toplevel_page_opcache-toolkit', 'normal', null ); ?>
 			</div>
+			<div id="postbox-container-2" class="postbox-container">
+				<?php do_meta_boxes( 'toplevel_page_opcache-toolkit', 'side', null ); ?>
+			</div>
+		</div> <!-- #post-body -->
+	</div> <!-- #poststuff -->
 		</main>
 
 	</div><!-- .opcache-toolkit-layout -->

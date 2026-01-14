@@ -9,8 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; }
 
 ?>
-<div id="opcache-toolkit-preload-progress" style="margin-top:30px;">
-	<h3>Preload Progress</h3>
+<div id="opcache-toolkit-preload-progress">
 	<div class="bar-bg">
 		<div class="bar-fill" style="width:0%"></div>
 	</div>

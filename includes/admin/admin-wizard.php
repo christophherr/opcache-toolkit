@@ -42,6 +42,10 @@ function opcache_toolkit_render_wizard_page() {
 			// Fallback if headers are already sent.
 			printf( '<meta http-equiv="refresh" content="0;url=%s">', esc_url( $redirect_url ) );
 			if ( ! apply_filters( 'opcache_toolkit_skip_exit', false ) ) {
+				// Clear any output buffers to ensure the meta refresh is sent.
+				while ( ob_get_level() > 0 ) {
+					ob_end_flush();
+				}
 				exit;
 			}
 		}
