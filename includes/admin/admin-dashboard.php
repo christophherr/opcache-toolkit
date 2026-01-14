@@ -112,7 +112,7 @@ add_action(
 			filemtime( OPCACHE_TOOLKIT_PATH . 'assets/css/opcache-toolkit-dashboard.css' )
 		);
 
- 	// Inline JS to init postboxes on this screen.
+		// Inline JS to init postboxes on this screen.
 		wp_add_inline_script(
 			'postbox',
 			"jQuery(document).ready(function($){
