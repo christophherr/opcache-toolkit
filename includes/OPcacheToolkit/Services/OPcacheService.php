@@ -47,6 +47,10 @@ class OPcacheService {
 	 * @return array|null
 	 */
 	public function get_configuration(): ?array {
+		if ( ! extension_loaded( 'opcache' ) ) {
+			return null;
+		}
+
 		$config = ini_get_all( 'opcache' );
 		return is_array( $config ) ? $config : null;
 	}
@@ -100,7 +104,7 @@ class OPcacheService {
 	 */
 	public function get_memory_usage(): array {
 		$status = $this->get_status();
-		return $status['memory_usage'] ?? [];
+		return $status['memory_usage'] ?? array();
 	}
 
 	/**
@@ -110,7 +114,7 @@ class OPcacheService {
 	 */
 	public function get_cached_scripts(): array {
 		$status = $this->get_status( true );
-		return $status['scripts'] ?? [];
+		return $status['scripts'] ?? array();
 	}
 
 	/**
@@ -120,7 +124,7 @@ class OPcacheService {
 	 */
 	public function get_ghost_scripts(): array {
 		$scripts = $this->get_cached_scripts();
-		$ghosts  = [];
+		$ghosts  = array();
 
 		foreach ( $scripts as $path => $data ) {
 			if ( ! file_exists( $path ) ) {
@@ -140,7 +144,7 @@ class OPcacheService {
 	 */
 	public function get_scripts_by_group(): array {
 		$scripts = $this->get_cached_scripts();
-		$groups  = [];
+		$groups  = array();
 
 		foreach ( $scripts as $path => $data ) {
 			$group = 'other';
@@ -160,11 +164,11 @@ class OPcacheService {
 			}
 
 			if ( ! isset( $groups[ $group ] ) ) {
-				$groups[ $group ] = [
+				$groups[ $group ] = array(
 					'count'  => 0,
 					'memory' => 0,
 					'hits'   => 0,
-				];
+				);
 			}
 
 			++$groups[ $group ]['count'];

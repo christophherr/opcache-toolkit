@@ -18,6 +18,8 @@ class OPcacheServiceTest extends BaseTestCase {
 	use PHPMock;
 
 	/**
+	 * Service instance.
+	 *
 	 * @var OPcacheService
 	 */
 	private $service;
@@ -38,7 +40,7 @@ class OPcacheServiceTest extends BaseTestCase {
 		$function_exists->expects( $this->any() )->with( 'opcache_get_status' )->willReturn( true );
 
 		$get_status = $this->getFunctionMock( 'OPcacheToolkit\Services', 'opcache_get_status' );
-		$get_status->expects( $this->any() )->willReturn( [ 'opcache_enabled' => true ] );
+		$get_status->expects( $this->any() )->willReturn( array( 'opcache_enabled' => true ) );
 
 		$this->assertTrue( $this->service->is_enabled() );
 	}
@@ -63,7 +65,7 @@ class OPcacheServiceTest extends BaseTestCase {
 		$function_exists = $this->getFunctionMock( 'OPcacheToolkit\Services', 'function_exists' );
 		$function_exists->expects( $this->any() )->with( 'opcache_get_status' )->willReturn( true );
 
-		$status_data = [ 'opcache_enabled' => true ];
+		$status_data = array( 'opcache_enabled' => true );
 		$get_status  = $this->getFunctionMock( 'OPcacheToolkit\Services', 'opcache_get_status' );
 		$get_status->expects( $this->any() )->with( true )->willReturn( $status_data );
 
@@ -110,11 +112,11 @@ class OPcacheServiceTest extends BaseTestCase {
 
 		$get_status = $this->getFunctionMock( 'OPcacheToolkit\Services', 'opcache_get_status' );
 		$get_status->expects( $this->any() )->willReturn(
-			[
-				'opcache_statistics' => [
+			array(
+				'opcache_statistics' => array(
 					'opcache_hit_rate' => 98.5,
-				],
-			]
+				),
+			)
 		);
 
 		$this->assertEquals( 98.5, $this->service->get_hit_rate() );
@@ -127,9 +129,9 @@ class OPcacheServiceTest extends BaseTestCase {
 		$function_exists = $this->getFunctionMock( 'OPcacheToolkit\Services', 'function_exists' );
 		$function_exists->expects( $this->any() )->with( 'opcache_get_status' )->willReturn( true );
 
-		$scripts    = [ '/path/to/script.php' => [] ];
+		$scripts    = array( '/path/to/script.php' => array() );
 		$get_status = $this->getFunctionMock( 'OPcacheToolkit\Services', 'opcache_get_status' );
-		$get_status->expects( $this->any() )->with( true )->willReturn( [ 'scripts' => $scripts ] );
+		$get_status->expects( $this->any() )->with( true )->willReturn( array( 'scripts' => $scripts ) );
 
 		$this->assertEquals( $scripts, $this->service->get_cached_scripts() );
 	}
@@ -141,21 +143,21 @@ class OPcacheServiceTest extends BaseTestCase {
 		$function_exists = $this->getFunctionMock( 'OPcacheToolkit\Services', 'function_exists' );
 		$function_exists->expects( $this->any() )->with( 'opcache_get_status' )->willReturn( true );
 
-		$scripts = [
-			'/path/exists.php'  => [ 'hits' => 10 ],
-			'/path/missing.php' => [ 'hits' => 5 ],
-		];
+		$scripts = array(
+			'/path/exists.php'  => array( 'hits' => 10 ),
+			'/path/missing.php' => array( 'hits' => 5 ),
+		);
 
 		$get_status = $this->getFunctionMock( 'OPcacheToolkit\Services', 'opcache_get_status' );
-		$get_status->expects( $this->any() )->with( true )->willReturn( [ 'scripts' => $scripts ] );
+		$get_status->expects( $this->any() )->with( true )->willReturn( array( 'scripts' => $scripts ) );
 
 		$file_exists = $this->getFunctionMock( 'OPcacheToolkit\Services', 'file_exists' );
 		$file_exists->expects( $this->exactly( 2 ) )
 			->willReturnMap(
-				[
-					[ '/path/exists.php', true ],
-					[ '/path/missing.php', false ],
-				]
+				array(
+					array( '/path/exists.php', true ),
+					array( '/path/missing.php', false ),
+				)
 			);
 
 		$ghosts = $this->service->get_ghost_scripts();
@@ -172,16 +174,31 @@ class OPcacheServiceTest extends BaseTestCase {
 		$function_exists = $this->getFunctionMock( 'OPcacheToolkit\Services', 'function_exists' );
 		$function_exists->expects( $this->any() )->with( 'opcache_get_status' )->willReturn( true );
 
-		$scripts = [
-			'/wp-content/plugins/plugin-a/plugin.php' => [ 'memory_consumption' => 1000, 'hits' => 10 ],
-			'/wp-content/plugins/plugin-b/plugin.php' => [ 'memory_consumption' => 2000, 'hits' => 5 ],
-			'/wp-content/themes/theme-a/style.php'    => [ 'memory_consumption' => 500, 'hits' => 2 ],
-			'/wp-includes/functions.php'              => [ 'memory_consumption' => 3000, 'hits' => 20 ],
-			'/other/file.php'                         => [ 'memory_consumption' => 100, 'hits' => 1 ],
-		];
+		$scripts = array(
+			'/wp-content/plugins/plugin-a/plugin.php' => array(
+				'memory_consumption' => 1000,
+				'hits'               => 10,
+			),
+			'/wp-content/plugins/plugin-b/plugin.php' => array(
+				'memory_consumption' => 2000,
+				'hits'               => 5,
+			),
+			'/wp-content/themes/theme-a/style.php'    => array(
+				'memory_consumption' => 500,
+				'hits'               => 2,
+			),
+			'/wp-includes/functions.php'              => array(
+				'memory_consumption' => 3000,
+				'hits'               => 20,
+			),
+			'/other/file.php'                         => array(
+				'memory_consumption' => 100,
+				'hits'               => 1,
+			),
+		);
 
 		$get_status = $this->getFunctionMock( 'OPcacheToolkit\Services', 'opcache_get_status' );
-		$get_status->expects( $this->any() )->with( true )->willReturn( [ 'scripts' => $scripts ] );
+		$get_status->expects( $this->any() )->with( true )->willReturn( array( 'scripts' => $scripts ) );
 
 		$groups = $this->service->get_scripts_by_group();
 
@@ -196,5 +213,35 @@ class OPcacheServiceTest extends BaseTestCase {
 		$this->assertEquals( 3000, $groups['core:includes']['memory'] );
 		$this->assertEquals( 20, $groups['core:includes']['hits'] );
 		$this->assertEquals( 1, $groups['core:includes']['count'] );
+	}
+
+	/**
+	 * Test get_configuration returns array when opcache extension is present.
+	 */
+	public function test_get_configuration_returns_array(): void {
+		$extension_exists = $this->getFunctionMock( 'OPcacheToolkit\Services', 'extension_loaded' );
+		$extension_exists->expects( $this->once() )->with( 'opcache' )->willReturn( true );
+
+		$ini_get_all = $this->getFunctionMock( 'OPcacheToolkit\Services', 'ini_get_all' );
+		$ini_get_all->expects( $this->once() )->with( 'opcache' )->willReturn( array( 'opcache.enable' => '1' ) );
+
+		$config = $this->service->get_configuration();
+		$this->assertIsArray( $config );
+		$this->assertEquals( '1', $config['opcache.enable'] );
+	}
+
+	/**
+	 * Test get_configuration returns null when opcache extension is missing.
+	 */
+	public function test_get_configuration_returns_null_when_extension_missing(): void {
+		$extension_exists = $this->getFunctionMock( 'OPcacheToolkit\Services', 'extension_loaded' );
+		$extension_exists->expects( $this->once() )->with( 'opcache' )->willReturn( false );
+
+		// ini_get_all should NOT be called.
+		$ini_get_all = $this->getFunctionMock( 'OPcacheToolkit\Services', 'ini_get_all' );
+		$ini_get_all->expects( $this->never() );
+
+		$config = $this->service->get_configuration();
+		$this->assertNull( $config );
 	}
 }
